@@ -1,6 +1,7 @@
 import socket
 import sys
 import random
+import checksum as cs
 
 def address_to_binary(address: str):
     '''
@@ -24,7 +25,6 @@ def address_to_binary(address: str):
             missing -= 1
 
         bits.reverse()
-        print(bits)
 
         for bit in bits:
             out += str(bit)
@@ -77,15 +77,18 @@ def make_ip_header(data):
     IP = socket.gethostbyname(hostname)
 
     # IPv4
-    version = "0010"
+    version = "0100"
+
+    source = "73.186.26.46"
+    source = address_to_binary(source)
 
     dest = socket.gethostbyname(sys.argv[1])
     dest = address_to_binary(dest)
 
     type_of_service = "00100000"    # https://www.omnisecu.com/tcpip/ipv4-protocol-and-ipv4-header.php#:~:text=%22Type%20of%20Service%20(ToS),delay%2C%20throughput%2C%20and%20reliability.
 
-    identifier = random.randint(0, 2**16)
-    identifer = decimal_to_binary(identifer, 16)
+    identification = random.randint(0, 2**16)
+    identification = decimal_to_binary(identification, 16)
 
     flag = "000"
     fragment_offset = "0000000000000"
@@ -94,14 +97,20 @@ def make_ip_header(data):
 
     protocol = "00000110"   # 6 = TCP
 
-    ihl = None  # compute after all variables initialized
+    padding = None      
 
-    total_length = ihl + len(data) / 8
+    ihl = 5  # compute after all variables initialized
+    if padding:
+        ihl += (len(padding) / 8) / 4
+    total_length = ihl #+ len(data) / 8      # Assume no optional data
 
+    ihl = decimal_to_binary(ihl, 4)
+    total_length = decimal_to_binary(total_length, 16)
 
+    checksum = "0000000000000000"
 
-    check_sum = "00000000"
-
+    temp_head = version + ihl + type_of_service + total_length + identification + flag + fragment_offset + ttl + protocol + checksum + source + dest
+    checksum = cs.calculate_checksum(temp_head)
 
 if __name__ == "__main__":
     make_ip_header("11111111")
