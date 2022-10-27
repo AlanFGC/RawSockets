@@ -97,7 +97,9 @@ def make_ip_header(data):
 
     protocol = "00000110"   # 6 = TCP
 
-    padding = None      
+    options = ""
+    padding_len = 32 - len(options)
+    padding = "0" * 32      
 
     ihl = 5  # compute after all variables initialized
     if padding:
@@ -114,3 +116,6 @@ def make_ip_header(data):
 
 if __name__ == "__main__":
     make_ip_header("11111111")
+    print("0" * 0)
+    print("0" * 1)
+    print("0" * 2)
