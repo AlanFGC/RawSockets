@@ -1,31 +1,23 @@
-
+ 
 example = "0100010100000000000000000011110000011100010001100100000000000000010000000000011000000000000000001010110000010000000010100110001110101100000100000000101000001100"
 
 def add_binary(bin1, bin2):
 
     dec1 = int(bin1, 2)
     dec2 = int(bin2, 2)
-
     total = dec1 + dec2
     total = bin(total)
-    total = total[2:]
-    chunk_size = 16
+    if len(total) < len(bin1):
+        prepend = "0" * (len(bin1) - len(total))
+        total = "0b" + prepend + total[2:]
+    if len(total) > len(bin1):
+        keep = "0b" + total[3:]
+        keep = int(keep, 2) + 1
+        total = bin(keep)[2:]
+        prepend = "0" * (16 - len(total))
+        total = "0b" + prepend + total
 
-    # size_difference = chunk_size - total(len)
-    # if size_difference < 0:
-    #     prepend = ""
-    #     while size_difference < 0:
-    #         prepend += "0"
-    #         size_difference += 1
-    #     total = "0b" + prepend + total
-    # elif size_difference > 0:
-    #     pass
-
-
-
-    print(bin1)
-    print(bin2)
-    print(total)
+    return total
 
 def calculate_checksum(header):
     '''
@@ -38,19 +30,14 @@ def calculate_checksum(header):
         groups.append("0b" + header[start:end])
         start += 16
         end += 16
-    print(groups)
     
-    # total = 0
-    # for i in groups:
-    #     add_binary()
+    checksum = groups[0]
+    for i in range(1, len(groups)):
+        checksum = add_binary(checksum, groups[i])
     
-    # checksum = bin(total).replace("0b", "")
-    # print(checksum)
-    # print(len(checksum))
-
-    add_binary('0b1010110000010000', '0b1010110000010000')
-    print(" ")
-    add_binary('0b0000000000111100', '0b0000101000001100')
+    checksum = checksum.replace("0b", "")
+    print(checksum)
+    print(len(checksum))
         
 
 
