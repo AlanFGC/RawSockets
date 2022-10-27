@@ -14,10 +14,17 @@ from struct import pack
 This function will pack data into an IPV4 header. 
 """
 def packIP(src, dest, data: bytes)->None:
-    print(type(data))
-    length = b"\x00\x00" + bytes(len(bytes))
-    print(length)
+    # this is a byte array, it can only append bytes that are less than 255, if you have a larger 'value' it won't work
     packet = bytearray()
+    
+    
+    # you can get the length of the byte data just by performing this. 
+    lenData = len(data)
+    
+    # this is how to convert integer into a mf byte of n size
+    length = lenData.to_bytes(2, 'big')
+    
+    
     service = b'\x00\x00'
     srcB = socket.inet_aton(src)
     destB = socket.inet_aton(dest)
@@ -36,4 +43,4 @@ def appendByte(array, bytes, size):
 def byteFormat(myBytes, desiredSize):
     pass
 
-packIP('192.168.1.232', '123.213.32.100', bytes(random.getrandbits(11200)))
+packIP('192.168.1.232', '123.213.32.100', b'dajsddlajksdpasdkapdkaspd')
