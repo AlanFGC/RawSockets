@@ -25,4 +25,9 @@ def checkSum() -> boolean:
  """
  Join data stored in a sorted array with the following format: (sequence number, data in bytes)
  """
-def join(arr) -> string #https string:
+def joinData(array) -> string:
+    data = sorted(array, key=lambda key:array[0])
+    string = ""
+    for i in data:
+
+

@@ -1,12 +1,13 @@
 import random
+import main
 
 """
 This is a test that reads a file and splits it into a html file.
 The goal of this test is to ensure that the files are joined together
 correctly.
 """
-def openHtml() -> list:
-    with open("linkedin.html", encoding = 'utf-8') as f:
+def openHtml(fileName) -> list:
+    with open(fileName, encoding = 'utf-8') as f:
         data = []
         tmp = f.read(1500)
         ptr = 0
@@ -25,10 +26,17 @@ def makeArray(data):
         sqnce += 1
     return dataArray
 
+
+def testJoiningData(fileName="linkedin.html"):    
+    data = openHtml(fileName)
+    array = makeArray(data)
+    random.shuffle(array)
+    main.joinData(array)
+    
+    return
+
 """
 Main drive of the program
 """
 if __name__ == "__main__":
-    data = openHtml()
-    arr = makeArray(data)
-    return
+    testJoiningData()
