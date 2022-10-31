@@ -1,7 +1,7 @@
 import socket
 import sys
 import random
-import checksum as cs
+import checksum_ip as cs
 
 def address_to_binary(address: str):
     '''
