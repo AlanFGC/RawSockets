@@ -28,6 +28,8 @@ def checkSum() -> boolean:
 def joinData(array) -> string:
     data = sorted(array, key=lambda key:array[0])
     string = ""
-    for i in data:
+    for item in data:
+        string += str(item[1], "ascii")
+    return string
 
 
