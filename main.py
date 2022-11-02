@@ -1,25 +1,19 @@
+
+import ip_handler
+import socket
+
 """
 Evan Hanes
 Alan Garcia
 19 october 2022
 """
-
-
-
-"""
-Grabs a packet and parses the information.
-"""
-def parse():
   
 """
 Not quite sure
 """
-def rawSock()->:
-
-"""
-Checksum whatever we have to checksum.
-"""
-def checkSum() -> boolean:
+def rawSock():
+    con = socket(AF_INET, SOCK_RAW, IPPROTO_TCP)
+    
   
   
  """
@@ -31,5 +25,7 @@ def joinData(array) -> string:
     for item in data:
         string += str(item[1], "ascii")
     return string
+
+rawSock()
 
 
