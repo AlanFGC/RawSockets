@@ -19,8 +19,6 @@ def main(packet):
     print(dest)
     print(sock_send.sendto(example, (dest, 80)))
 
-    # message = "Hello world".encode()
-    # sock_send.sendall(message)
 
 if __name__ == "__main__":
     main(None)
