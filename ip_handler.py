@@ -10,14 +10,12 @@ import struct
 This mini library is made to handle IP packets
 """
 
-
 def bytes_to_address(source: bytes):
     arr = []
     for i in range(len(source)):
         arr.append(str(int(source[i])))
         
     return ".".join(arr)
-
 
 def address_to_binary(address: str):
     '''
@@ -46,7 +44,6 @@ def address_to_binary(address: str):
             out += str(bit)
 
     return out
-    
 
 def decimal_to_binary(value, num_digits):
 
@@ -68,25 +65,7 @@ def decimal_to_binary(value, num_digits):
     
     return out
 
-
-# 0                   1                   2                   3
-# 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# |Version|  IHL  |Type of Service|          Total Length         |
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# |         Identification        |Flags|      Fragment Offset    |
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# |  Time to Live |    Protocol   |         Header Checksum       |
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# |                       Source Address                          |
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# |                    Destination Address                        |
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# |                    Options                    |    Padding    |
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-
-def make_ip_header(data:bytes) -> bytes:
+def make_ip_header(data:bytes, src: String, dest: String) -> bytes:
     # Construct IP header
     hostname = socket.gethostname()
    
@@ -95,11 +74,7 @@ def make_ip_header(data:bytes) -> bytes:
     # IPv4
     version = "0100"
 
-    source = "73.186.26.46"
-    source = address_to_binary(source)
-
-    dest = socket.gethostbyname("www.google.com")
-    
+    src = address_to_binary(src)
     dest = address_to_binary(dest)
     
     
@@ -115,10 +90,9 @@ def make_ip_header(data:bytes) -> bytes:
     ttl = "00100000"    # 32 hops should be enough, right?
 
     protocol = "00000110"   # 6 = TCP
-
     ihl = "0101"
+    
     total_length = 20 + len(data)
-    print(total_length)
     total_length = "{0:b}".format(total_length, '016b')
     total_length = "0" * (16 - len(total_length)) + total_length
     
@@ -131,11 +105,12 @@ def make_ip_header(data:bytes) -> bytes:
     checksum = "1111110001011010"
     
 
-    temp_head = version + ihl + type_of_service + total_length + identification + flag + fragment_offset + ttl + protocol + checksum + source + dest
+    temp_head = version + ihl + type_of_service + total_length + identification + flag + fragment_offset + ttl + protocol + checksum + src + dest
     #checksum = cs.calculate_checksum(temp_head)
     if len(temp_head) != 160:
         print("IP HEADER LEN:" + len(temp_head))
         raise ValueError("Ip header incorrect Size")
+    
     ip_header = convert_Bit_String_to_bytes(temp_head)
     byteArr = bytearray()
     appendByte(byteArr, ip_header, len(ip_header))
@@ -147,7 +122,6 @@ def appendByte(array, bytes, size):
     for i in range(size):
         array.append(bytes[i])
     return
-
 
 def convert_Bit_String_to_bytes(s):
     return int(s, 2).to_bytes((len(s) + 7) //8, byteorder='big')
@@ -162,16 +136,18 @@ def parse_IP_packet(data: bytes):
     # ihl as string
     ihl = bin(int(str(data[0]), base=16))[2:]
     # length as integer
-    total_length = int(struct.unpack('>h', data[2:4])[0])
+    total_length = int(struct.unpack('>H', data[2:4])[0])
     # checksum as integer
-    checkSum = int(struct.unpack('>h', data[8:10])[0])
+    checkSum = int(struct.unpack('>H', data[8:10])[0])
     
     # ip data
     src = data[12:16]
     dest = data[16:20]
     src_ip = bytes_to_address(src)
     dest_ip = bytes_to_address(dest)
-    
+    print(f'src: {src_ip}')
+    print(f'dest: {dest_ip}')
+    print(f'Total Length: {total_length}')
     # the rest of the packet    
     raw_data = data[20:]
     return raw_data
@@ -180,10 +156,13 @@ def parse_IP_packet(data: bytes):
 This function accepts data that's wrapped in an tcp header 
 """
 def parse_TCP_packet(data: bytes):
-    srcPort = int(struct.unpack('>h', data[0:2])[0])
-    destPort = int(struct.unpack('>h', data[2:4])[0])
-    seqNumber = int(struct.unpack('>h', data[4:8])[0])
-    ackNumber = int(struct.unpack('>h', data[8:12])[0])
+    srcPort = int(struct.unpack('>H', data[0:2])[0])
+    destPort = int(struct.unpack('>H', data[2:4])[0])
+    seqNumber = int(struct.unpack('>I', data[4:8])[0])
+    ackNumber = int(struct.unpack('>I', data[8:12])[0])
+    print(f'PORTS: SRC:{srcPort} dest:{destPort}')
+    print(f'SqnceNumb: {seqNumber}')
+    print(f'ackNumber: {ackNumber}')
     raw_data = data[20:]
     return srcPort, destPort, seqNumber, ackNumber, raw_data
 
