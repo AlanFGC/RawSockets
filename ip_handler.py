@@ -76,9 +76,6 @@ def make_ip_header(data:bytes, src: String, dest: String) -> bytes:
 
     src = address_to_binary(src)
     dest = address_to_binary(dest)
-    
-    
-
     type_of_service = "00100000"    # https://www.omnisecu.com/tcpip/ipv4-protocol-and-ipv4-header.php#:~:text=%22Type%20of%20Service%20(ToS),delay%2C%20throughput%2C%20and%20reliability.
 
     identification = random.randint(0, 2**16)
@@ -117,6 +114,38 @@ def make_ip_header(data:bytes, src: String, dest: String) -> bytes:
     appendByte(byteArr, data, len(data))
     
     return bytes(byteArr)
+
+
+def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
+                    ackNumb: int, window: int, syn: bool, ack:bool, fin:bool):
+    srcPort = "{0:b}".format(srcPort, '016b')
+    srcPort = "0" * (16 - len(srcPort)) + srcPort
+    destPort = "{0:b}".format(destPort, '016b')
+    destPort = "0" * (16 - len(destPort)) + destPort
+    # Sequence Number, Acknowledge Number
+    seqNumb = "{0:b}".format(seqNumb, '016b')
+    seqNumb = "0" * (32 - len(seqNumb)) + seqNumb
+    ackNumb = "{0:b}".format(ackNumb, '016b')
+    ackNumb = "0" * (32 - len(ackNumb)) + ackNumb
+    # DO, RSV, FLAGS
+    syn = "1" if syn else "0"
+    ack = "1" if ack else "0"
+    headerSize = "01010000" # 8 bits
+    flags = "000" + ack + 00 + syn + fin # 8 bits
+    # window size
+    window = "{0:b}".format(window, '016b')
+    window = "0" * (16 - len(window)) + window
+    # checksum and urgent
+    checksum = 0 * 16
+    extra = 0 * 16
+    temp_head = srcPort + destPort + seqNumb + ackNumb +headerSize + flags + window + checksum + extra
+    tcp_header = convert_Bit_String_to_bytes(temp_head)
+    byteArr = bytearray()
+    appendByte(byteArr, tcp_header, len(tcp_header))
+    appendByte(byteArr, data, len(data))
+    return bytes(bytearray)
+    
+    
 
 def appendByte(array, bytes, size):
     for i in range(size):
@@ -168,7 +197,5 @@ def parse_TCP_packet(data: bytes):
 
 
 if __name__ == "__main__":
-    myBytes = make_ip_header(bytes(b"hello World!"))
-    print(myBytes)
-    print(len(myBytes))
-    parse_IP_packet(myBytes)
+    myBytes = bytes(b"hello World!")
+    make_tcp_header(myBytes, 5004, 80, 321401244, 4213209102, 25, True, True, False)
