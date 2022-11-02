@@ -1,4 +1,5 @@
 import socket
+import ip_handler
 
 def main():
 
@@ -33,12 +34,13 @@ def main():
     # Set socket options and bind them to their respective ports
     sock_send.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
     sock_send.bind((local_ip, port_send))
-    send = sock_send.sendto(example.encode(), (dest, 80))
+    print(local_ip)
+    send = sock_send.sendto(ip_handler.make_ip_header(ip_handler.convert_Bit_String_to_bytes(example), "8.8.8.8", local_ip), (dest, 80))
     
     sock_rec.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
     sock_rec.bind((local_ip, port_rec))
     rec = sock_rec.recv(1500)
-    print(rec)
+    ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
 
 
 if __name__ == "__main__":
