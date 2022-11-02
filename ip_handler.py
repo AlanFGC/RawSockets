@@ -143,7 +143,7 @@ def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     byteArr = bytearray()
     appendByte(byteArr, tcp_header, len(tcp_header))
     appendByte(byteArr, data, len(data))
-    return bytes(bytearray)
+    return bytes(byteArr)
     
     
 
