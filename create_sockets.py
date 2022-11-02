@@ -34,7 +34,7 @@ def main():
     sock_rec.bind((local_ip, port_rec))
     rec = sock_rec.recv(1500)
     print(rec)
-    
+
 
 if __name__ == "__main__":
     main()
