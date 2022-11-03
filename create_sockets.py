@@ -31,15 +31,19 @@ def main():
     sock_send = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
     sock_rec = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
 
+    packet = ip_handler.make_ip_header(ip_handler.make_tcp_header(b"", port_send, port_rec, 1234, 2345, 1, True, False, False), local_ip, dest)
+
     # Set socket options and bind them to their respective ports
     sock_send.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
     sock_send.bind((local_ip, port_send))
-    print(local_ip)
-    send = sock_send.sendto(ip_handler.make_ip_header(ip_handler.convert_Bit_String_to_bytes(example), "8.8.8.8", local_ip), (dest, 80))
+    send = sock_send.sendto(packet, (dest, 80))
     
     sock_rec.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
     sock_rec.bind((local_ip, port_rec))
     rec = sock_rec.recv(1500)
+    for i in range(10):
+        rec += sock_rec.recv(1500)
+    print(rec)
     ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
 
 

@@ -130,15 +130,16 @@ def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     # DO, RSV, FLAGS
     syn = "1" if syn else "0"
     ack = "1" if ack else "0"
+    fin = "1" if fin else "0"
     headerSize = "01010000" # 8 bits
-    flags = "000" + ack + 00 + syn + fin # 8 bits
+    flags = "000" + ack + "00" + syn + fin # 8 bits
     # window size
     window = "{0:b}".format(window, '016b')
     window = "0" * (16 - len(window)) + window
     # checksum and urgent
-    checksum = 0 * 16
-    extra = 0 * 16
-    temp_head = srcPort + destPort + seqNumb + ackNumb +headerSize + flags + window + checksum + extra
+    checksum = "0" * 16
+    extra = "0" * 16
+    temp_head = str(srcPort) + str(destPort) + str(seqNumb) + str(ackNumb) + headerSize + flags + str(window) + checksum + extra
     tcp_header = convert_Bit_String_to_bytes(temp_head)
     byteArr = bytearray()
     appendByte(byteArr, tcp_header, len(tcp_header))
