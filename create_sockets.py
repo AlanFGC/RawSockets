@@ -31,7 +31,7 @@ def main():
     sock_send = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
     sock_rec = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
 
-    packet = ip_handler.make_ip_header(ip_handler.make_tcp_header(b"", port_send, port_rec, 1234, 2345, 1, True, False, False), local_ip, dest)
+    packet = ip_handler.make_ip_header(ip_handler.make_tcp_header(b"", port_send, 80, 1234, 2345, 1, True, False, False), local_ip, dest)
 
     # Set socket options and bind them to their respective ports
     sock_send.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
@@ -47,12 +47,12 @@ def main():
     # the original sequence num + 1, then that is the correct
     # packet.
 
-    for i in range(10):
-        print(rec)
-        rec = sock_rec.recv(1500)
-    print(rec)
+    # for i in range(10):
+    #     print(rec)
+    #     rec = sock_rec.recv(1500)
+    # print(rec)
     ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
 
-
+    print(port_send, port_rec)
 if __name__ == "__main__":
     main()
