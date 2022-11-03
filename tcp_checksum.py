@@ -1,4 +1,7 @@
-def tcp_checksum(pseudo_header, header):
+def tcp_checksum(source_ip, dest_ip, protocol, tcp_length, tcp_header):
+
+  # Pseudo-header = source_ip + dest_ip + reserved + protocol + TCP_length
+  pseudo_header = source_ip + dest_ip + "00000000" + protocol + tcp_length
 
   start = 0
   end = 16
@@ -13,8 +16,8 @@ def tcp_checksum(pseudo_header, header):
   start = 0
   end = 16
 
-  while end <= len(header):
-    chunks.append(header[start:end])
+  while end <= len(tcp_header):
+    chunks.append(tcp_header[start:end])
     start += 16
     end += 16
   
