@@ -5,6 +5,7 @@ import random
 from tokenize import String
 import checksum as cs
 import struct
+import tcp_checksum
 
 """
 This mini library is made to handle IP packets
@@ -131,17 +132,22 @@ def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     syn = "1" if syn else "0"
     ack = "1" if ack else "0"
     fin = "1" if fin else "0"
-    headerSize = "01010000" # 8 bits
+    do = "0101"
+    rsv = "0000"
     flags = "000" + ack + "00" + syn + fin # 8 bits
     # window size
     window = "{0:b}".format(window, '016b')
     window = "0" * (16 - len(window)) + window
     # checksum and urgent
-    checksum = "0" * 16
+    checkSum = tcp_checksum.tcp_checksum(len(data))
     extra = "0" * 16
-    temp_head = str(srcPort) + str(destPort) + str(seqNumb) + str(ackNumb) + headerSize + flags + str(window) + checksum + extra
+    temp_head = str(srcPort) + str(destPort) + str(seqNumb) + str(ackNumb) + do + rsv + flags + str(window) + checkSum + extra
     tcp_header = convert_Bit_String_to_bytes(temp_head)
     byteArr = bytearray()
+    
+    if len(tcp_header) != 20:
+        raise ValueError("Erroneous size for tcp header.")
+    
     appendByte(byteArr, tcp_header, len(tcp_header))
     appendByte(byteArr, data, len(data))
     return bytes(byteArr)
@@ -190,6 +196,8 @@ def parse_TCP_packet(data: bytes):
     destPort = int(struct.unpack('>H', data[2:4])[0])
     seqNumber = int(struct.unpack('>I', data[4:8])[0])
     ackNumber = int(struct.unpack('>I', data[8:12])[0])
+    flags = "{0:b}".format(data[13], '016b')
+    flags = "0" * (8 - len(flags)) + flags
     print(f'PORTS: SRC:{srcPort} dest:{destPort}')
     print(f'SqnceNumb: {seqNumber}')
     print(f'ackNumber: {ackNumber}')

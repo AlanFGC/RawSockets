@@ -1,48 +1,9 @@
-def tcp_checksum(pseudo_header, header):
-
-  start = 0
-  end = 16
-
-  chunks = []
-
-  while end <= len(pseudo_header):
-    chunks.append(pseudo_header[start:end])
-    start += 16
-    end += 16
-  
-  start = 0
-  end = 16
-
-  while end <= len(header):
-    chunks.append(header[start:end])
-    start += 16
-    end += 16
-  
-  for i in range(len(chunks)):
-    chunks[i] = int(chunks[i], 2)
-  
-  total = sum(chunks)
-  checksum = bin(total)[2:]
-
-  diff = len(checksum) - 16
-  if diff > 0:
-    carry_over = checksum[:diff]
-    checksum = checksum[diff:]
-    checksum = bin(int(checksum, 2) + int(carry_over, 2))[2:]
-    
-  diff = 16 - len(checksum)
-  if diff > 0:
-    prepend = "0" * diff
-    checksum = prepend + checksum
-
-  out = ""
-  for i in range(16):
-    if checksum[i] == "0":
-      out += "1"
-    else:
-      out += "0"
-
-  return out
+import ip_handler
+def tcp_checksum(dataLen):
+  checksum = "{0:b}".format(dataLen + 40, '016b')
+  checksum = "0" * (16 - len(checksum)) + checksum
+  print(checksum)
+  return checksum
   
   
 
