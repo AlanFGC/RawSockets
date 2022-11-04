@@ -1,8 +1,6 @@
-from audioop import add
-from operator import le
+from ast import Bytes
 import socket
 import random
-from tokenize import String
 import checksum as cs
 import tcp_checksum
 import struct
@@ -66,7 +64,7 @@ def decimal_to_binary(value, num_digits):
     
     return out
 
-def make_ip_header(data:bytes, src: String, dest: String) -> bytes:
+def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
     # Construct IP header
     hostname = socket.gethostname()
    
@@ -116,6 +114,26 @@ def make_ip_header(data:bytes, src: String, dest: String) -> bytes:
     
     return bytes(byteArr)
 
+
+def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
+                    ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
+                    src_ip:str, dest_ip:str):
+    a1 = struct.pack('!HH', srcPort, destPort)
+    a2 = struct.pack('!II', seqNumb, ackNumb)
+    a3 = struct.pack('!B', 5 << 4)
+    syn = "1" if syn else "0"
+    ack = "1" if ack else "0"
+    fin = "1" if fin else "0"
+    flags = "000" + ack + "00" + syn + fin
+    a4 = struct.pack('!B', int(flags, 2))
+    a5 = struct.pack('!H', int(window))
+    a6 = struct.pack('!H', 0)
+    a7 = struct.pack('!H', 0)
+    packet = b''.join([a1,a2,a3,a4,a5,a6,a7])
+    
+    if len(packet) != 20:
+        raise ValueError("WRONG SIZE FOR PACKET")
+    return packet
 
 def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
