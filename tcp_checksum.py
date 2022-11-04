@@ -1,3 +1,5 @@
+import array
+
 def tcp_checksum(source_ip, dest_ip, protocol, tcp_length, tcp_header):
 
   # Pseudo-header = source_ip + dest_ip + reserved + protocol + TCP_length
@@ -51,6 +53,27 @@ def tcp_checksum(source_ip, dest_ip, protocol, tcp_length, tcp_header):
       out += "0"
 
   return out
+
+
+def create_tcp_checksum(init_packet):
+
+    if len(init_packet) % 2 != 0:
+        init_packet += b'\0'
+    
+    total = sum(array.array("H", init_packet))
+
+    num_bits = total.bit_length()
+
+    difference = 0
+    if num_bits > 16:
+        difference = len(total) - 16
+    
+    overflow = total >> 16
+    main = total << difference
+
+    total = overflow + main
+
+    return ~total
   
   
 
