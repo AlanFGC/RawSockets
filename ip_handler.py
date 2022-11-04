@@ -4,6 +4,7 @@ import socket
 import random
 from tokenize import String
 import checksum as cs
+import tcp_checksum
 import struct
 
 """
@@ -117,7 +118,8 @@ def make_ip_header(data:bytes, src: String, dest: String) -> bytes:
 
 
 def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
-                    ackNumb: int, window: int, syn: bool, ack:bool, fin:bool):
+                    ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
+                    src_ip:str, dest_ip:str):
     srcPort = "{0:b}".format(srcPort, '016b')
     srcPort = "0" * (16 - len(srcPort)) + srcPort
     destPort = "{0:b}".format(destPort, '016b')
@@ -140,11 +142,17 @@ def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     checksum = "0" * 16
     extra = "0" * 16
     temp_head = str(srcPort) + str(destPort) + str(seqNumb) + str(ackNumb) + headerSize + flags + str(window) + checksum + extra
+    
+    tcp_length = decimal_to_binary(20 + len(data), 16)
+    checksum = tcp_checksum.tcp_checksum(address_to_binary(src_ip), address_to_binary(dest_ip), "00000110", tcp_length, temp_head)
+    temp_head = str(srcPort) + str(destPort) + str(seqNumb) + str(ackNumb) + headerSize + flags + str(window) + checksum + extra
+
     tcp_header = convert_Bit_String_to_bytes(temp_head)
     byteArr = bytearray()
     appendByte(byteArr, tcp_header, len(tcp_header))
     appendByte(byteArr, data, len(data))
     return bytes(byteArr)
+
     
     
 
