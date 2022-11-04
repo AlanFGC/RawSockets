@@ -48,5 +48,34 @@ def main():
     ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
 
 
+def getConnectionPorts(domain: str):
+    
+    dest = socket.gethostbyname(domain)
+    # Create two ephemeral sockets to get their ports
+    eff_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    eff_socket.sendto(b"HI", ('127.0.0.1', 80))
+    port_send = eff_socket.getsockname()[1]
+    
+    eff_socket_2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    eff_socket_2.sendto(b"HI", ('127.0.0.1', 80))
+    port_rec = eff_socket_2.getsockname()[1]
+    
+    eff_socket.close()      # Close ephemeral sockets
+    eff_socket_2.close()
+    
+    return port_rec, port_send
+
+
+def getLocalIp():
+    # Create epemeral socket to get IP address
+    # NOTE: socket.gethostbyname(socket.gethostname()) returns localhost on
+    # Ubuntu 22.04
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    local_ip = s.getsockname()[0]
+    s.close()
+    return local_ip
+
+
 if __name__ == "__main__":
     main()
