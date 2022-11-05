@@ -1,9 +1,7 @@
+import array
+
 def tcp_checksum(source_ip, dest_ip, protocol, tcp_length, tcp_header):
-
   # Pseudo-header = source_ip + dest_ip + reserved + protocol + TCP_length
-
-  
-
   pseudo_header = source_ip + dest_ip + "00000000" + protocol + tcp_length
 
   start = 0
@@ -53,6 +51,14 @@ def tcp_checksum(source_ip, dest_ip, protocol, tcp_length, tcp_header):
   return out
   
   
+#TODO erase
+def chksum(packet):
+  if len(packet) % 2 != 0:
+      packet += b'\0'    
+  res = sum(array.array("H", packet))
+  res = (res >> 16) + (res & 0xffff)
+  res += res >> 16    
+  return (~res) & 0xffff
 
  
 
