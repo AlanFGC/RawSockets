@@ -47,6 +47,7 @@ def main(domain: str):
     for i in range(10):
         rec = sock_rec.recv(1500)
         ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+    
     sock_send.close()
     sock_rec.close()
 
