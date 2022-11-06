@@ -118,6 +118,7 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
 def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
                     src_ip:str, dest_ip:str):
+    # !HHIIBBHHH',
     a1 = struct.pack('!HH', srcPort, destPort)
     a2 = struct.pack('!II', seqNumb, ackNumb)
     a3 = struct.pack('!B', 5 << 4)
@@ -129,7 +130,7 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     a5 = struct.pack('!H', int(window))
     a6 = struct.pack('!H', 0)
     a7 = struct.pack('!H', 0)
-    packet = b''.join([a1,a2,a3,a4,a5,a6,a7])
+    packet = b''.join([a1,a2,a3,a4,a5,a6,a7, data])
     
     # TODO rewrite with our own code
     ip_header = struct.pack(
@@ -137,17 +138,17 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     socket.inet_aton(src_ip),    # Source Address
     socket.inet_aton(dest_ip),    # Destination Address
     socket.IPPROTO_TCP,                 # Protocol ID
-    len(packet)                         # TCP Length
+    len(packet) + len(data)                         # TCP Length
 )
     
-    checksum = tcp_checksum.chksum(ip_header + data)
+    checksum = tcp_checksum.chksum(ip_header + packet)
     
-    packet = packet[:16] + struct.pack('!H', checksum) + packet[18:]
+    packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
     
-    if len(packet) != 20:
+    if len(packet) != 20 + len(data):
         raise ValueError("WRONG SIZE FOR PACKET")
     
-    return packet + data
+    return packet
 
 def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
