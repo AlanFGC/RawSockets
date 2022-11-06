@@ -130,7 +130,7 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     a5 = struct.pack('!H', int(window))
     a6 = struct.pack('!H', 0)
     a7 = struct.pack('!H', 0)
-    packet = b''.join([a1,a2,a3,a4,a5,a6,a7, data])
+    packet = b''.join([a1,a2,a3,a4,a5,a6,a7])
     
     # TODO rewrite with our own code
     ip_header = struct.pack(
@@ -148,7 +148,7 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     if len(packet) != 20 + len(data):
         raise ValueError("WRONG SIZE FOR PACKET")
     
-    return packet
+    return packet + data
 
 def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 

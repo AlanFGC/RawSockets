@@ -32,7 +32,7 @@ def main(domain: str):
     sock_send = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
     sock_rec = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
     
-    packet = ip_handler.make_tcp_header_2(getRandomData() , send_port, ext_dest_port, 666, 1, 0, True, False, False, local_ip, dest_ip)
+    packet = ip_handler.make_tcp_header_2( b'' , send_port, ext_dest_port, 666, 1, 0, True, False, False, local_ip, dest_ip)
     packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
     
     # Set socket options and bind them to their respective ports
