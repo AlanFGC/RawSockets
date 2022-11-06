@@ -1,7 +1,7 @@
 from ast import Bytes
 import socket
 import random
-import checksum as cs
+import ip_checksum
 import tcp_checksum
 import struct
 
@@ -65,6 +65,8 @@ def decimal_to_binary(value, num_digits):
     return out
 
 def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
+    
+    
     # IPv4
     version = "0100"
 
@@ -92,22 +94,25 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
     if len(ihl) != 4 or len(total_length) != 16:
         raise ValueError("Incorrect IHL or Total_Length size")
 
-    # checksum set to disabled
-    checksum = "1111110001011010"
+    # placeholder
+    checksum = "0" * 16
     
 
     temp_head = version + ihl + type_of_service + total_length + identification + flag + fragment_offset + ttl + protocol + checksum + src + dest
-    #checksum = cs.calculate_checksum(temp_head)
-    if len(temp_head) != 160:
-        print("IP HEADER LEN:" + len(temp_head))
-        raise ValueError("Ip header incorrect Size")
+    byte_checkSum = convert_Bit_String_to_bytes(ip_checksum.calculate_checksum_ip(temp_head))
+    
     
     ip_header = convert_Bit_String_to_bytes(temp_head)
     byteArr = bytearray()
     appendByte(byteArr, ip_header, len(ip_header))
     appendByte(byteArr, data, len(data))
+    header = byteArr[:10] + byte_checkSum + byteArr[12:]
     
-    return bytes(byteArr)
+    if len(header) != 20 + len(data):
+        print("IP HEADER LEN:" , len(header))
+        raise ValueError("Ip header incorrect Size")
+    
+    return header + data
 
 
 def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
@@ -179,9 +184,6 @@ def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     appendByte(byteArr, tcp_header, len(tcp_header))
     appendByte(byteArr, data, len(data))
     return bytes(byteArr)
-
-    
-    
 
 def appendByte(array, bytes, size):
     for i in range(size):

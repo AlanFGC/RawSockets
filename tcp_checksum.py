@@ -51,7 +51,7 @@ def tcp_checksum(source_ip, dest_ip, protocol, tcp_length, tcp_header):
   return out
 
 
-def create_tcp_checksum(init_packet):
+def calculate_checksum_tcp(init_packet):
 
     if len(init_packet) % 2 != 0:
         init_packet += b'\0'
@@ -85,7 +85,4 @@ def chksum(packet):
 
 if __name__ == "__main__":
   # Example checksum from: https://www.securitynik.com/2015/08/calculating-udp-checksum-with-taste-of_3.html
-  ph = "110000001010100000000000000111111100000010101000000000000001111000000000000001100000000000010110"
-  h = "00000000000101000000000000001010000000000000000000000000000010100000000000000000000000000000000001010000000000100010000000000000000000000000000000000000000000000100100001101001"
-  tcp_checksum(ph, h)
-  
+  pass
