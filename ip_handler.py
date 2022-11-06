@@ -66,7 +66,7 @@ def decimal_to_binary(value, num_digits):
 
 def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
     
-    
+    a1 = struct.pack("!")
     # IPv4
     version = "0100"
 
@@ -131,18 +131,12 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     a6 = struct.pack('!H', 0)
     a7 = struct.pack('!H', 0)
     packet = b''.join([a1,a2,a3,a4,a5,a6,a7])
-    
-    # TODO rewrite with our own code
-    ip_header = struct.pack(
-    '!4s4sHH',
-    socket.inet_aton(src_ip),    # Source Address
-    socket.inet_aton(dest_ip),    # Destination Address
-    socket.IPPROTO_TCP,                 # Protocol ID
-    len(packet) + len(data)                         # TCP Length
+    ip_header = struct.pack('!4s4sHH',socket.inet_aton(src_ip),socket.inet_aton(dest_ip),int("00000110",2),len(packet) + len(data)                       
 )
     
     checksum = tcp_checksum.chksum(ip_header + packet)
     
+    # checksum is not big endian
     packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
     
     if len(packet) != 20 + len(data):
