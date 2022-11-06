@@ -112,7 +112,7 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
         print("IP HEADER LEN:" , len(header))
         raise ValueError("Ip header incorrect Size")
     
-    return header + data
+    return header
 
 
 def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
@@ -140,14 +140,14 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     len(packet)                         # TCP Length
 )
     
-    checksum = tcp_checksum.chksum(ip_header + packet)
+    checksum = tcp_checksum.chksum(ip_header + data)
     
-    packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
+    packet = packet[:16] + struct.pack('!H', checksum) + packet[18:]
     
     if len(packet) != 20:
         raise ValueError("WRONG SIZE FOR PACKET")
     
-    return packet
+    return packet + data
 
 def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
