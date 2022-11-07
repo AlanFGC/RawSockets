@@ -1,5 +1,3 @@
- 
-example = "0100010100000000000000000011110000011100010001100100000000000000010000000000011000000000000000001010110000010000000010100110001110101100000100000000101000001100"
 """
 This function add two binary numbers
 """
@@ -18,8 +16,6 @@ def add_binary(bin1, bin2):
         prepend = "0" * (16 - len(total))
         total = "0b" + prepend + total
     return total
-
-
 
 """
 This is an IP checkSum, takes the header

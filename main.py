@@ -2,6 +2,7 @@ import create_sockets as my_socks
 import socket
 import ip_handler
 import random
+import httpGet
 
 """
 Evan Hanes
@@ -14,11 +15,28 @@ def getRandomData():
 
 
 def main(domain: str):
-    
-    
-    domain = "david.choffnes.com"
-    ext_dest_port = 80
+    # set up
     local_ip = my_socks.getLocalIp();
+    domain = "www.david.choffnes.com"
+    dest_ip = socket.gethostbyname(domain)
+    dest_port = 80
+    sendS, recS,  handshake(dest_ip, dest_port, local_ip, domain)
+    
+    
+    sock_send.close()
+    sock_rec.close()
+    
+    
+    
+    
+    
+    
+        
+    
+def handshake(dest_ip, dest_port, local_ip, domain):
+    # HANDSHAKE
+    
+    ext_dest_port = dest_port;
     
     
     rec_port = random.randint(10000, 65000)
@@ -30,13 +48,14 @@ def main(domain: str):
         send_port = random.randint(10000, 65000)
     
     
-    dest_ip = socket.gethostbyname(domain)
     
     
-    print(f'Local ip {local_ip}:{send_port}, destination ip {dest_ip }:{ext_dest_port}')
+    initSqnc = random.randint(10000, 65000)
+    print(f'Local ip {local_ip}:{send_port}, destination ip {dest_ip }:{ext_dest_port}, rec port: {rec_port}')
     sock_send = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
     sock_rec = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-    packet = ip_handler.make_tcp_header_2( b'' , send_port, ext_dest_port, 666, 1, 0, True, False, False, local_ip, dest_ip)
+    
+    packet = ip_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, True, False, False, local_ip, dest_ip)
     packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
 
     
@@ -49,21 +68,27 @@ def main(domain: str):
     
     if not sock_rec or not sock_send:
         raise ValueError("Sockets didn't initialize successfully")
+    
+    
+    
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
+    
+    
     rec = sock_rec.recv(1500)
-
-
-    ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+    srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+    
+    getPacket = httpGet.craftRequest(domain, "/")
+    # Send the Ack
+    packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, initSqnc + 1, seqNumber + 1, 1, False, True, False, local_ip, dest_ip)
+    packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
+    sock_send.sendto(packet, (dest_ip, ext_dest_port))
+    
+    rec = sock_rec.recv(1500)
+    srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+    return sock_send, sock_rec
     
     
-    for i in range(10):
-        rec = sock_rec.recv(1500)
-        ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
     
-        
-    sock_send.close()
-    sock_rec.close()
-
 
 if __name__ == "__main__":
     main("hello")

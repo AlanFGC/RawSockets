@@ -131,16 +131,15 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     a6 = struct.pack('!H', 0)
     a7 = struct.pack('!H', 0)
     packet = b''.join([a1,a2,a3,a4,a5,a6,a7])
-    ip_header = struct.pack('!4s4sHH',socket.inet_aton(src_ip),socket.inet_aton(dest_ip),int("00000110",2),len(packet) + len(data)                       
-)
+    ip_header = struct.pack('!4s4sHH',socket.inet_aton(src_ip),socket.inet_aton(dest_ip),int("00000110",2),len(packet) + len(data))
     
     checksum = tcp_checksum.chksum(ip_header + packet)
     
     # checksum is not big endian
     packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
     
-    if len(packet) != 20 + len(data):
-        raise ValueError("WRONG SIZE FOR PACKET")
+    if len(packet) != 20:
+        raise ValueError("WRONG SIZE FOR PACKET", len(packet))
     
     return packet + data
 
@@ -222,11 +221,12 @@ def parse_TCP_packet(data: bytes):
     destPort = int(struct.unpack('>H', data[2:4])[0])
     seqNumber = int(struct.unpack('>I', data[4:8])[0])
     ackNumber = int(struct.unpack('>I', data[8:12])[0])
+    window = int(struct.unpack('>H', data[14:16])[0])
     print(f'PORTS: SRC:{srcPort} dest:{destPort}')
     print(f'SqnceNumb: {seqNumber}')
     print(f'ackNumber: {ackNumber}')
     raw_data = data[20:]
-    return srcPort, destPort, seqNumber, ackNumber, raw_data
+    return srcPort, destPort, seqNumber, ackNumber, raw_data, window
 
 
 if __name__ == "__main__":
