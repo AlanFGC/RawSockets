@@ -5,20 +5,12 @@ import random
 import httpGet
 import threading
 import queue
-import time
 
 """
 Evan Hanes
 Alan Garcia
 19 october 2022
 """
-
-def getRandomData():
-    return random.randbytes(random.randint(1, 100))
-
-def joinAndWrite(data):
-    pass
-
 def main(domain: str):
     # set up
     local_ip = my_socks.getLocalIp()
@@ -31,47 +23,95 @@ def main(domain: str):
     conn.send_sock.close()
     conn.rec_sock.close()
     
+    # algorithm
+    return
+    data = download(conn)
+    dataString = joinAndWrite(data)
+    
+    print(dataString)
+    return dataString
+
+
+def getRandomData():
+    return random.randbytes(random.randint(1, 100))
+
+def joinAndWrite(downloads:dict) -> str:
+    downloads = list(downloads.items())
+    downloads.sort(key=lambda i:(i[0], i[1]))
+    file = []
+    for item in downloads:
+        file.append(item.decode())
+    return "".join(file)
     
  
-    
-def download(conn):
+"""
+This function takes care of the main download part of the code.
+It uses a queue and a extra thread to process the data and send ack responses.
+"""
+def download(conn) -> dict:
     download = {} #sequence Number: RAW DATA
     workList = queue.Queue()
+    
+    
     # Send GET http request
     packet = httpGet.craftRequest(conn.domain, conn.subdomain)
-    packet = ip_handler.make_tcp_header_2(packet , conn.rec_port, conn.dest_port, conn.seq_numb + 1, conn.ack_numb + 1, 1, True, False, False, conn.local_ip, conn.dest_ip)
+    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb + 1, conn.ack_numb, 10, True, False, False, conn.local_ip, conn.dest_ip)
     packet = ip_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
+    print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
+    
+    # receive the ack of the get
+    while True:
+        rec = conn.sock_rec.recv(1500)
+        src = rec[12:16]
+        thisSourceIP = ip_handler.bytes_to_address(src)
+        if thisSourceIP == conn.dest_ip:
+            srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+            # his sequence number is my ack ack number and viceversa
+            conn.seq_numb = ackNumber
+            conn.ack_numb = seqNumber
+            break
+    
+    
 
-    fin = False
-    while not fin:
+    # create a thread and start
+    threading.Thread(target=packetWorkerThread(conn, workList, download)).start()
+    
+    while True:
         data = conn.rec_sock.recv(1500)
         src = data[12:16]
         thisSourceIP = ip_handler.bytes_to_address(src)
         if conn.local_ip == thisSourceIP:
             workList.enqueue(data)
-            
+        
             # if we fin the Fin, we stop listening completely
             if (data[13] >> 1 ) == 1:
-                fin = True
                 break
     
     # wait until both processes are done
     workList.join()
     return download
     
-    
-    """
-    This fucntion process all the incoming packets and resends the ack packets.
-    It also manages the window size
-    """
-def packetWorkerThread(conn, queue):
-    window = 1
+
+"""
+This fucntion process all the incoming packets and resends the ack packets.
+It also manages the window size
+"""
+def packetWorkerThread(conn, queue, download):
+    windowSize = 10
     windowSet = {} # sequence number: data
+    
+    
+    while True:
+        if len(queue) > 0: 
+            item = queue.dequeue()
+            item
     # create a thread that listens to all
     
         
-    
+"""
+TCP handshake
+"""
 def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     ext_dest_port = dest_port
     
@@ -111,7 +151,6 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     # Receive SYN ACK
     while True:
         rec = sock_rec.recv(1500)
-        
         src = rec[12:16]
         thisSourceIP = ip_handler.bytes_to_address(src)
         if thisSourceIP == dest_ip:
@@ -119,7 +158,7 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
             break
     
     # Send first ACK
-    packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber + 1, seqNumber + 1, 1, False, True, False, local_ip, dest_ip)
+    packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber, seqNumber + 1, 20000, False, True, False, local_ip, dest_ip)
     packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
     
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
