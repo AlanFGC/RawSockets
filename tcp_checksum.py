@@ -52,7 +52,6 @@ def tcp_checksum(source_ip, dest_ip, protocol, tcp_length, tcp_header):
 
 
 def calculate_checksum_tcp(init_packet):
-
     if len(init_packet) % 2 != 0:
         init_packet += b'\0'
     

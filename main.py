@@ -5,6 +5,7 @@ import random
 import httpGet
 import threading
 import queue
+import time
 
 """
 Evan Hanes
@@ -26,16 +27,14 @@ def main(domain: str):
     dest_port = 80
     
     conn = handshake(dest_ip, dest_port, local_ip, domain, "/")
-    data = download(conn)
     
     conn.send_sock.close()
-    conn.rec_port.close()
+    conn.rec_sock.close()
     
     
  
     
-def download(conn: ConnectionData):
-    conn = ConnectionData()
+def download(conn):
     download = {} #sequence Number: RAW DATA
     workList = queue.Queue()
     # Send GET http request
@@ -43,8 +42,6 @@ def download(conn: ConnectionData):
     packet = ip_handler.make_tcp_header_2(packet , conn.rec_port, conn.dest_port, conn.seq_numb + 1, conn.ack_numb + 1, 1, True, False, False, conn.local_ip, conn.dest_ip)
     packet = ip_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
-
-g
 
     fin = False
     while not fin:
@@ -58,8 +55,6 @@ g
             if (data[13] >> 1 ) == 1:
                 fin = True
                 break
-    
-    
     
     # wait until both processes are done
     workList.join()
@@ -109,18 +104,24 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     if not sock_rec or not sock_send:
         raise ValueError("Sockets didn't initialize successfully")
     
-    
+    # send the first SYN
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
     
     
     # Receive SYN ACK
-    rec = sock_rec.recv(1500)
-    srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
-    
+    while True:
+        rec = sock_rec.recv(1500)
+        
+        src = rec[12:16]
+        thisSourceIP = ip_handler.bytes_to_address(src)
+        if thisSourceIP == dest_ip:
+            srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+            break
     
     # Send first ACK
     packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber + 1, seqNumber + 1, 1, False, True, False, local_ip, dest_ip)
     packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
+    
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
     
     

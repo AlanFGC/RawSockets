@@ -37,6 +37,5 @@ def calculate_checksum_ip(header):
         checksum = add_binary(checksum, groups[i])
     
     checksum = checksum.replace("0b", "")
-    print(f'IP CHECKSUM: {checksum}')
     return checksum
         

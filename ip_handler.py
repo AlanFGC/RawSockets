@@ -45,7 +45,6 @@ def address_to_binary(address: str):
     return out
 
 def decimal_to_binary(value, num_digits):
-
     bits = []
     while value:
         bits.append(value % 2)
@@ -118,7 +117,7 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
 def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
                     src_ip:str, dest_ip:str):
-    # !HHIIBBHHH',
+    
     a1 = struct.pack('!HH', srcPort, destPort)
     a2 = struct.pack('!II', seqNumb, ackNumb)
     a3 = struct.pack('!B', 5 << 4)
@@ -143,7 +142,7 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     
     return packet + data
 
-def make_tcp_header(data:bytes, srcPort: int, destPort: int, seqNumb: int,
+def make_tcp_header_deprecated(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
                     src_ip:str, dest_ip:str):
     srcPort = "{0:b}".format(srcPort, '016b')
