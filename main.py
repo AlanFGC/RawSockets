@@ -24,11 +24,9 @@ def main(domain: str):
     conn.rec_sock.close()
     
     # algorithm
-    return
     data = download(conn)
-    dataString = joinAndWrite(data)
+    #dataString = joinAndWrite(data)
     
-    print(dataString)
     return dataString
 
 
@@ -73,7 +71,7 @@ def download(conn) -> dict:
             break
     
     
-
+    return
     # create a thread and start
     threading.Thread(target=packetWorkerThread(conn, workList, download)).start()
     
