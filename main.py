@@ -51,7 +51,7 @@ def download(conn) -> dict:
     
     # Send GET http request
     packet = httpGet.craftRequest(conn.domain, conn.subdomain)
-    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, conn.local_ip, conn.dest_ip, push=True, syn=True)
+    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, conn.local_ip, conn.dest_ip, push=True, ack=True)
     packet = ip_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
     print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
@@ -127,21 +127,18 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     sock_send = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
     sock_rec = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
     
-    packet = ip_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, local_ip, dest_ip, syn=True)
-    packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
+    
 
     
-    # Set socket options and bind them to their respective ports
-    sock_send.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
-    sock_send.bind((local_ip, send_port))
-    sock_rec.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
-    sock_rec.bind((local_ip, rec_port))
+    
 
     
     if not sock_rec or not sock_send:
         raise ValueError("Sockets didn't initialize successfully")
     
     # send the first SYN
+    packet = ip_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, local_ip, dest_ip, syn=True)
+    packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
     
     
@@ -157,15 +154,20 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     # Send first ACK
     packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber, seqNumber + 1, 20000, local_ip, dest_ip, ack=True)
     packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
-    
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
     
     
+    
+    
+    
+    
+    
     # Create the connection object to send away
-    con = ConnectionData(domain, subdomain, local_ip, dest_ip, ext_dest_port, send_port, rec_port)
-    con.setTCP(ackNumber, seqNumber + 1)
-    con.setBindedSockets(sock_send, sock_rec)
-    return con
+    conn = ConnectionData(domain, subdomain, local_ip, dest_ip, ext_dest_port, send_port, rec_port)
+    conn.setTCP(ackNumber, seqNumber)
+    conn.setBindedSockets(sock_send, sock_rec)
+    
+    return conn 
 
     
 
