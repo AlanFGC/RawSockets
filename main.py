@@ -1,10 +1,12 @@
-import create_sockets as my_socks
+from ConnectionData import ConnectionData
+import create_sockets
 import socket
 import ip_handler
 import random
 import httpGet
 import threading
 import queue
+
 
 """
 Evan Hanes
@@ -13,7 +15,7 @@ Alan Garcia
 """
 def main(domain: str):
     # set up
-    local_ip = my_socks.getLocalIp()
+    local_ip = create_sockets.getLocalIp()
     domain = "www.david.choffnes.com"
     dest_ip = socket.gethostbyname(domain)
     dest_port = 80
@@ -165,37 +167,6 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     con.setTCP(initSqnc + 1, seqNumber + 1)
     con.setBindedSockets(sock_send, sock_rec)
     return con
-    
-    
-    
-
-"""
-    This class holds the properties of a connection. 
-"""
-class ConnectionData:
-    def __init__(self, domain, subdomain, local_ip, dest_ip, dest_port, send_port, rec_port):
-        self.domain = domain
-        self.subdomain = subdomain
-        self.local_ip = local_ip
-        self.dest_ip = dest_ip
-        self.dest_port = dest_port
-        self.send_port = send_port
-        self.rec_port = rec_port
-        self.seq_numb = None
-        self.ack_numb = None
-        self.send_sock = None
-        self.rec_sock = None
-        return
-
-    def setTCP(self, seq_numb, ack_numb):
-        self.seq_numb = seq_numb
-        self.ack_numb = ack_numb
-        return
-    
-    def setBindedSockets(self, send_sock, rec_sock):
-        self.send_sock = send_sock
-        self.rec_sock = rec_sock
-        return
 
     
 
