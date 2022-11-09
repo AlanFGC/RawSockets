@@ -115,8 +115,7 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
 
 
 def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
-                    ackNumb: int, window: int, syn: bool, ack:bool, fin:bool, 
-                    src_ip:str, dest_ip:str):
+                    ackNumb: int, window: int, src_ip:str, dest_ip:str, syn=False, ack=False, fin=False, push=False, reset=False):
     
     a1 = struct.pack('!HH', srcPort, destPort)
     a2 = struct.pack('!II', seqNumb, ackNumb)
@@ -124,7 +123,9 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     syn = "1" if syn else "0"
     ack = "1" if ack else "0"
     fin = "1" if fin else "0"
-    flags = "000" + ack + "00" + syn + fin
+    push = "1" if push else "0"
+    reset = "1" if reset else "0"
+    flags = "000" + ack + push + reset + syn + fin
     a4 = struct.pack('!B', int(flags, 2))
     a5 = struct.pack('!H', int(window))
     a6 = struct.pack('!H', 0)

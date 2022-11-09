@@ -51,11 +51,12 @@ def download(conn) -> dict:
     
     # Send GET http request
     packet = httpGet.craftRequest(conn.domain, conn.subdomain)
-    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, True, False, False, conn.local_ip, conn.dest_ip)
+    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, conn.local_ip, conn.dest_ip, push=True, syn=True)
     packet = ip_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
     print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
     
+    return
     # receive the ack of the get
     while True:
         rec = conn.rec_sock.recv(1500)
@@ -126,7 +127,7 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     sock_send = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
     sock_rec = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
     
-    packet = ip_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, True, False, False, local_ip, dest_ip)
+    packet = ip_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, local_ip, dest_ip, syn=True)
     packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
 
     
@@ -154,7 +155,7 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
             break
     
     # Send first ACK
-    packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber, seqNumber + 1, 20000, False, True, False, local_ip, dest_ip)
+    packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber, seqNumber + 1, 20000, local_ip, dest_ip, ack=True)
     packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
     
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
