@@ -19,10 +19,7 @@ def main(domain: str):
     dest_port = 80
     
     conn = handshake(dest_ip, dest_port, local_ip, domain, "/")
-    
-    conn.send_sock.close()
-    conn.rec_sock.close()
-    
+
     # algorithm
     data = download(conn)
     #dataString = joinAndWrite(data)
