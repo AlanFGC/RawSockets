@@ -51,9 +51,8 @@ def download(conn) -> dict:
     
     # Send GET http request
     packet = httpGet.craftRequest(conn.domain, conn.subdomain)
-    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, (conn.seq_numb + len(packet)) % 0xFFFFFFFF, conn.ack_numb, 10, True, False, False, conn.local_ip, conn.dest_ip)
+    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, True, False, False, conn.local_ip, conn.dest_ip)
     packet = ip_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
-    conn.seq_numb = (conn.seq_numb + len(packet)) % 0xFFFFFFFF
     print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
     
@@ -163,7 +162,7 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     
     # Create the connection object to send away
     con = ConnectionData(domain, subdomain, local_ip, dest_ip, ext_dest_port, send_port, rec_port)
-    con.setTCP(initSqnc + 1, seqNumber + 1)
+    con.setTCP(ackNumber, seqNumber + 1)
     con.setBindedSockets(sock_send, sock_rec)
     return con
 
