@@ -51,10 +51,9 @@ def download(conn) -> dict:
     
     # Send GET http request
     packet = httpGet.craftRequest(conn.domain, conn.subdomain)
-    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb + len(packet) % 0xFFFFFFFF, conn.ack_numb + 1, 10, True, False, False, conn.local_ip, conn.dest_ip)
+    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, (conn.seq_numb + len(packet)) % 0xFFFFFFFF, conn.ack_numb, 10, True, False, False, conn.local_ip, conn.dest_ip)
     packet = ip_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
-    conn.seq_numb = conn.seq_numb + len(packet)
-    conn.ack_numb += 1
+    conn.seq_numb = (conn.seq_numb + len(packet)) % 0xFFFFFFFF
     print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
     
