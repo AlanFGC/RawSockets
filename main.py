@@ -6,7 +6,10 @@ import random
 import httpGet
 import threading
 import queue
+import struct
 
+
+MAX_SQNC = 4,294,967,295
 
 """
 Evan Hanes
@@ -25,7 +28,13 @@ def main(domain: str):
     # algorithm
     data = download(conn)
     #dataString = joinAndWrite(data)
-    return None
+    
+    
+    
+    conn.send_sock.close()
+    conn.rec_sock.close()
+    
+    return data
 
 
 def getRandomData():
@@ -45,7 +54,7 @@ This function takes care of the main download part of the code.
 It uses a queue and a extra thread to process the data and send ack responses.
 """
 def download(conn) -> dict:
-    download = {} #sequence Number: RAW DATA
+    download = [] #sequence Number: RAW DATA
     workList = queue.Queue()
     
     
@@ -56,54 +65,64 @@ def download(conn) -> dict:
     print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
     
-    return
-    # receive the ack of the get
+    
+    # create a thread and start
+    threading.Thread(target=packetWorkerThread(conn, workList, download)).start()
+    
+    
+    # This is my listener
     while True:
         rec = conn.rec_sock.recv(1500)
         src = rec[12:16]
         thisSourceIP = ip_handler.bytes_to_address(src)
         if thisSourceIP == conn.dest_ip:
-            srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
-            # his sequence number is my ack ack number and viceversa
-            conn.seq_numb = ackNumber
-            conn.ack_numb = seqNumber
-            break
-    
-    
-    return
-    # create a thread and start
-    threading.Thread(target=packetWorkerThread(conn, workList, download)).start()
-    
-    while True:
-        data = conn.rec_sock.recv(1500)
-        src = data[12:16]
-        thisSourceIP = ip_handler.bytes_to_address(src)
-        if conn.local_ip == thisSourceIP:
-            workList.enqueue(data)
-        
-            # if we fin the Fin, we stop listening completely
-            if (data[13] >> 1 ) == 1:
+            workList.enqueue(rec)
+            # check the fin bit is set
+            
+            if (rec[13] << 7) > 1:
+                print("FIN DETECTED, bye byee")
                 break
     
-    # wait until both processes are done
     workList.join()
     return download
+
     
 
 """
 This fucntion process all the incoming packets and resends the ack packets.
 It also manages the window size
 """
-def packetWorkerThread(conn, queue, download):
-    windowSize = 10
-    windowSet = {} # sequence number: data
-    
-    
+def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
+    windowSize = 2500
     while True:
-        if len(queue) > 0: 
-            item = queue.dequeue()
-            item
-    # create a thread that listens to all
+        if workList.empty(): 
+            continue
+        
+        packet = workList.dequeue()
+        
+        # pase the packet
+        tcp_packet = ip_handler.parse_IP_packet(packet)
+        srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(tcp_packet)
+        
+        # craft the reply
+        reply = ip_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, (seqNumber + len(raw_data)) % MAX_SQNC, windowSize, conn.local_ip, conn.dest_ip, ack=True)
+        reply = ip_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
+        
+        # send the acknowledgment
+        conn.send_sock.sendto(reply, (conn.dest_ip, conn.dest_port))
+        
+        # append the download
+        download.append(raw_data)
+        
+        # if FINN is detected we say bye
+        if (packet[13] << 7) > 1:
+                print("Worker Thread, bye byee")
+                return download
+            
+    return download
+        
+        
+            
     
         
 """

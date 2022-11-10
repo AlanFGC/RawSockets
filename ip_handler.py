@@ -60,7 +60,7 @@ def decimal_to_binary(value, num_digits):
     out = ""
     for i in bits:
         out += str(i)
-    
+        
     return out
 
 def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
