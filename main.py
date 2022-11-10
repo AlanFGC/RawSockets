@@ -69,7 +69,7 @@ def download(conn) -> dict:
     
     # create a thread and start
     t2 = threading.Thread(target=packetWorkerThread, args=(conn, workList, download))
-    t2.run()
+    t2.start()
     # This is my listener
     while True:
         rec = conn.rec_sock.recv(1500)
@@ -82,7 +82,8 @@ def download(conn) -> dict:
             
             if (len(rec) > 20 and rec[13] << 7) > 1:
                 print("FIN DETECTED, bye byee")
-                break
+                #break
+                return
     
     workList.join()
     return download
@@ -101,8 +102,8 @@ def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
             print("wtf")
             continue
         
+        print("processing packets:")
         packet = workList.get()
-        print(workList)
         # pase the packet
         tcp_packet = pack_handler.parse_IP_packet(packet)
         srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(tcp_packet)
