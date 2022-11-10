@@ -8,6 +8,7 @@ import struct
 """
 This mini library is made to handle IP packets
 """
+
 def bytes_to_address(source: bytes):
     arr = []
     for i in range(len(source)):
@@ -59,11 +60,8 @@ def decimal_to_binary(value, num_digits):
     out = ""
     for i in bits:
         out += str(i)
-        
+    
     return out
-
-    """_summary_ ruddimentary ip header, can be made faster
-    """
 
 def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
     
@@ -114,6 +112,7 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
         raise ValueError("Ip header incorrect Size")
     
     return header
+
 
 def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
                     ackNumb: int, window: int, src_ip:str, dest_ip:str, syn=False, ack=False, fin=False, push=False, reset=False):
@@ -188,6 +187,7 @@ def appendByte(array, bytes, size):
 def convert_Bit_String_to_bytes(s):
     return int(s, 2).to_bytes((len(s) + 7) //8, byteorder='big')
 
+
 """
 This function accepts data that's wrapped in an IP header
 """
@@ -228,3 +228,7 @@ def parse_TCP_packet(data: bytes):
     raw_data = data[20:]
     return srcPort, destPort, seqNumber, ackNumber, raw_data, window
 
+
+if __name__ == "__main__":
+    myBytes = bytes(b"hello World!")
+    make_tcp_header(myBytes, 5004, 80, 321401244, 4213209102, 25, True, True, False)
