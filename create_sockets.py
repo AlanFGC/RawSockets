@@ -1,5 +1,5 @@
 import socket
-import ip_handler
+import pack_handler
 
 def main():
     dest = socket.gethostbyname("david.choffnes.com")
@@ -29,7 +29,7 @@ def main():
     sock_rec = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
 
     print(local_ip)
-    packet = ip_handler.make_ip_header(ip_handler.make_tcp_header(b"", port_send, port_rec, 1234, 2345, 1, True, False, False, local_ip, dest), local_ip, dest)
+    packet = pack_handler.make_ip_header(pack_handler.make_tcp_header(b"", port_send, port_rec, 1234, 2345, 1, True, False, False, local_ip, dest), local_ip, dest)
 
     # Set socket options and bind them to their respective ports
     sock_send.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
@@ -42,7 +42,7 @@ def main():
     for i in range(10):
         rec += sock_rec.recv(1500)
     print(rec)
-    ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+    pack_handler.parse_TCP_packet(pack_handler.parse_IP_packet(rec))
 
 
 def getConnectionPorts(domain: str):

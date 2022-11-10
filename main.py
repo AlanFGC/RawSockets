@@ -1,3 +1,4 @@
+import time
 from ConnectionData import ConnectionData
 import create_sockets
 import socket
@@ -67,9 +68,8 @@ def download(conn) -> dict:
     
     
     # create a thread and start
-    threading.Thread(target=packetWorkerThread(conn, workList, download)).start()
-    
-    
+    t2 = threading.Thread(target=packetWorkerThread, args=(conn, workList, download))
+    t2.run()
     # This is my listener
     while True:
         rec = conn.rec_sock.recv(1500)
@@ -77,10 +77,10 @@ def download(conn) -> dict:
         src = rec[12:16]
         thisSourceIP = pack_handler.bytes_to_address(src)
         if thisSourceIP == conn.dest_ip:
-            workList.enqueue(rec)
+            workList.put(rec)
             # check the fin bit is set
             
-            if (rec[13] << 7) > 1:
+            if (len(rec) > 20 and rec[13] << 7) > 1:
                 print("FIN DETECTED, bye byee")
                 break
     
@@ -91,16 +91,18 @@ def download(conn) -> dict:
 
 """
 This fucntion process all the incoming packets and resends the ack packets.
-It also manages the window size
+It also manages the window szize
 """
 def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
     windowSize = 2500
     while True:
         if workList.empty(): 
+            time.sleep(50)
+            print("wtf")
             continue
         
-        packet = workList.dequeue()
-        
+        packet = workList.get()
+        print(workList)
         # pase the packet
         tcp_packet = pack_handler.parse_IP_packet(packet)
         srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(tcp_packet)
@@ -115,6 +117,7 @@ def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
         # append the download
         download.append(raw_data)
         
+        workList.task_done()
         # if FINN is detected we say bye
         if (packet[13] << 7) > 1:
                 print("Worker Thread, bye byee")
