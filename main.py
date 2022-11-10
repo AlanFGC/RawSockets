@@ -236,7 +236,7 @@ def download_S(conn) -> dict:
             #0000 0001 << 7 = 1000 0000 if that is > 0
             if len(rec) > 20 and packet[20+13] << 7 > 1:
                 print("FIN DETECTEd: ", bin(packet[20+13]))
-                print(len(download))
+                closeTCP(conn)
                 return
     
     
