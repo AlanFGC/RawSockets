@@ -27,7 +27,7 @@ def main(domain: str):
     conn = handshake(dest_ip, dest_port, local_ip, domain, "/")
 
     # algorithm
-    data = download(conn)
+    data = download_S(conn)
     #dataString = joinAndWrite(data)
     
     
@@ -78,15 +78,16 @@ def download(conn) -> dict:
     # This is my listener
     while True:
         rec = conn.rec_sock.recv(1500)
-        print("LISTENING FOR INCOMING PACKETS")
+        print("LISTENING FOR INCOMING PACKETS" + str(workList.qsize()))
         src = rec[12:16]
         thisSourceIP = pack_handler.bytes_to_address(src)
+        #TODO check the port also
         if thisSourceIP == conn.dest_ip:
-            print("FROM SOURCE")
             workList.put(rec)
             # check the fin bit is set
             
-            if (len(rec) > 20 and rec[13] << 7) > 1:
+            #0000 0001 << 7 = 1000 0000 if that is > 0
+            if len(rec) > 20 and ((packet[20+13] << 7) > 1):
                 print("FIN DETECTED")
     
     workList.join()
@@ -100,8 +101,7 @@ def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
     print("Worked thread is trying to run")
     windowSize = 2500
     while True:
-        if workList.empty(): 
-            time.sleep(50)
+        if workList.empty():
             print("packetWorkerThread")
             continue
         
@@ -127,7 +127,7 @@ def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
         
         workList.task_done()
         # if FINN is detected we say bye
-        if (packet[13] << 7) > 1:
+        if len(packet) > 20 and ((packet[13] << 7) > 1):
                 print("Worker Thread, FIN Detected")
                 return download
             
@@ -196,5 +196,78 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     
     return conn 
 
+
+    
+    
+"""
+This function takes care of the main download part of the code.
+It uses a single thread
+"""
+def download_S(conn) -> dict:
+    download = [] #sequence Number: RAW DATA
+    workList = queue.Queue()
+    
+    
+    # Send GET http request
+    packet = httpGet.craftRequest(conn.domain, conn.subdomain)
+    packet = pack_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, conn.local_ip, conn.dest_ip, push=True, ack=True)
+    packet = pack_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
+    print(conn.dest_ip, conn.dest_port)
+    conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
+    
+    # This is my listener
+    while True:
+        rec = conn.rec_sock.recv(1500)
+        print("LISTENING FOR INCOMING PACKETS" + str(workList.qsize()))
+        src = rec[12:16]
+        thisSourceIP = pack_handler.bytes_to_address(src)
+        #TODO check the port also
+        if thisSourceIP == conn.dest_ip:
+            respondPacket(conn, rec, download)
+            # check the fin bit is set
+            
+            #0000 0001 << 7 = 1000 0000 if that is > 0
+            if len(rec) > 20 and ((packet[20+13] << 7) > 1):
+                print("FIN DETECTED")
+                print(len(download))
+    
+    
+    return download
+
+"""
+This fucntion process all the incoming packets and resends the ack packets.
+It also manages the window szize
+"""
+def respondPacket(conn: ConnectionData, packet: bytes, download: list):
+    
+    windowSize = 2500
+    print("packetWorkerThread")
+        # pase the packet
+    tcp_packet = pack_handler.parse_IP_packet(packet)
+    srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(tcp_packet)
+    
+    # craft the reply
+    newSeqnc = (seqNumber + len(raw_data))
+    newSeqnc = newSeqnc % MAX_SQNC
+    reply = pack_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, newSeqnc, windowSize, conn.local_ip, conn.dest_ip, ack=True)
+    reply = pack_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
+    
+    
+    print("Sending Replies!")
+    # send the acknowledgment
+    conn.send_sock.sendto(reply, (conn.dest_ip, conn.dest_port))
+    
+    # append the download
+    download.append(raw_data)
+    
+    # if FINN is detected we say bye
+    if len(packet) > 20 and ((packet[13] << 7) > 1):
+            print("Worker Thread, FIN Detected")
+    return download
+
 if __name__ == "__main__":
     main("hello")
+    
+    
+    
+    
