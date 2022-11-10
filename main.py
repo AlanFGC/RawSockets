@@ -32,8 +32,7 @@ def main(domain: str):
     
     
     
-    conn.send_sock.close()
-    conn.rec_sock.close()
+    closeTCP(conn)
     
     return data
 
@@ -196,7 +195,15 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     
     return conn 
 
-
+"""
+Close tcp connections
+"""
+def closeTCP(conn):
+    reply = pack_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, conn.ack_numb, 1, conn.local_ip, conn.dest_ip, fin=True, ack=True)
+    reply = pack_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
+    conn.send_sock.sendto(reply, (conn.dest_ip, conn.dest_port))
+    conn.send_sock.close()
+    conn.rec_sock.close()
     
     
 """
@@ -227,9 +234,10 @@ def download_S(conn) -> dict:
             # check the fin bit is set
             
             #0000 0001 << 7 = 1000 0000 if that is > 0
-            if len(rec) > 20 and ((packet[20+13] << 7) > 1):
-                print("FIN DETECTED")
+            if len(rec) > 20 and packet[20+13] << 7 > 1:
+                print("FIN DETECTEd: ", bin(packet[20+13]))
                 print(len(download))
+                return
     
     
     return download
