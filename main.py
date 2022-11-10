@@ -10,7 +10,7 @@ import queue
 import struct
 
 
-MAX_SQNC = 4,294,967,295
+MAX_SQNC = 4294967295
 
 """
 Evan Hanes
@@ -112,7 +112,9 @@ def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
         srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(tcp_packet)
         
         # craft the reply
-        reply = pack_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, (seqNumber + len(raw_data)) % MAX_SQNC, windowSize, conn.local_ip, conn.dest_ip, ack=True)
+        newSeqnc = (seqNumber + len(raw_data))
+        newSeqnc = newSeqnc % MAX_SQNC
+        reply = pack_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, newSeqnc, windowSize, conn.local_ip, conn.dest_ip, ack=True)
         reply = pack_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
         
         
@@ -126,7 +128,7 @@ def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
         workList.task_done()
         # if FINN is detected we say bye
         if (packet[13] << 7) > 1:
-                print("Worker Thread, bye byee")
+                print("Worker Thread, FIN Detected")
                 return download
             
     return download
