@@ -1,7 +1,7 @@
 from ConnectionData import ConnectionData
 import create_sockets
 import socket
-import ip_handler
+import pack_handler
 import random
 import httpGet
 import threading
@@ -60,8 +60,8 @@ def download(conn) -> dict:
     
     # Send GET http request
     packet = httpGet.craftRequest(conn.domain, conn.subdomain)
-    packet = ip_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, conn.local_ip, conn.dest_ip, push=True, ack=True)
-    packet = ip_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
+    packet = pack_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, conn.local_ip, conn.dest_ip, push=True, ack=True)
+    packet = pack_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
     print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
     
@@ -73,8 +73,9 @@ def download(conn) -> dict:
     # This is my listener
     while True:
         rec = conn.rec_sock.recv(1500)
+        print("LISTENING FOR INCOMING PACKETS")
         src = rec[12:16]
-        thisSourceIP = ip_handler.bytes_to_address(src)
+        thisSourceIP = pack_handler.bytes_to_address(src)
         if thisSourceIP == conn.dest_ip:
             workList.enqueue(rec)
             # check the fin bit is set
@@ -101,12 +102,12 @@ def packetWorkerThread(conn: ConnectionData, workList: queue, download: list):
         packet = workList.dequeue()
         
         # pase the packet
-        tcp_packet = ip_handler.parse_IP_packet(packet)
-        srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(tcp_packet)
+        tcp_packet = pack_handler.parse_IP_packet(packet)
+        srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(tcp_packet)
         
         # craft the reply
-        reply = ip_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, (seqNumber + len(raw_data)) % MAX_SQNC, windowSize, conn.local_ip, conn.dest_ip, ack=True)
-        reply = ip_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
+        reply = pack_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, (seqNumber + len(raw_data)) % MAX_SQNC, windowSize, conn.local_ip, conn.dest_ip, ack=True)
+        reply = pack_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
         
         # send the acknowledgment
         conn.send_sock.sendto(reply, (conn.dest_ip, conn.dest_port))
@@ -156,8 +157,8 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
         raise ValueError("Sockets didn't initialize successfully")
     
     # send the first SYN
-    packet = ip_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, local_ip, dest_ip, syn=True)
-    packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
+    packet = pack_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, local_ip, dest_ip, syn=True)
+    packet = pack_handler.make_ip_header(packet, local_ip, dest_ip)
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
     
     
@@ -165,14 +166,14 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
     while True:
         rec = sock_rec.recv(1500)
         src = rec[12:16]
-        thisSourceIP = ip_handler.bytes_to_address(src)
+        thisSourceIP = pack_handler.bytes_to_address(src)
         if thisSourceIP == dest_ip:
-            srcPort, destPort, seqNumber, ackNumber, raw_data, window = ip_handler.parse_TCP_packet(ip_handler.parse_IP_packet(rec))
+            srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(pack_handler.parse_IP_packet(rec))
             break
     
     # Send first ACK
-    packet = ip_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber, seqNumber + 1, 20000, local_ip, dest_ip, ack=True)
-    packet = ip_handler.make_ip_header(packet, local_ip, dest_ip)
+    packet = pack_handler.make_tcp_header_2( b"", rec_port, ext_dest_port, ackNumber, seqNumber + 1, 20000, local_ip, dest_ip, ack=True)
+    packet = pack_handler.make_ip_header(packet, local_ip, dest_ip)
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
     
     
