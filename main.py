@@ -9,6 +9,7 @@ import httpGet
 import threading
 import queue
 import struct
+from urllib.parse import urlparse
 
 
 MAX_SQNC = 4294967295
@@ -21,13 +22,32 @@ Alan Garcia
 def main(domain: str):
     # set up
     local_ip = create_sockets.getLocalIp()
-    domain = "www.david.choffnes.com"
-    dest_ip = socket.gethostbyname(domain)
+    domain = "http://www.david.choffnes.com/classes/cs5700f22/50MB"
+    
+    host = urlparse(domain)
+    path = host.path
+    filename = path.split("/")[-1]
+    
+    
+    if  not filename or "." not in filename:
+        filename = "index.html"
+    
+    path = path if path else "/"
+    
+    
+    dest_ip = socket.gethostbyname(host.hostname)
     dest_port = 80
-    conn = handshake(dest_ip, dest_port, local_ip, domain, "/classes/cs5700f22/50MB.log")
+    
+    
+    
+    conn = handshake(dest_ip, dest_port, local_ip, host.hostname , path)
 
+    
     # algorithm
     data = download_S(conn)
+    
+    
+    
     
     #dataString = joinAndWrite(data)
     if len(data) > 0:
