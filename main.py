@@ -274,8 +274,8 @@ def checkFinBit(currByte: bytes):
 
 
 if __name__ == "__main__":
-    #main("hello")
-    print(checkFinBit(pack_handler.convert_Bit_String_to_bytes("001000001")))
+    main("hello")
+    #print(checkFinBit(pack_handler.convert_Bit_String_to_bytes("001000001")))
     
     
     
