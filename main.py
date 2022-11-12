@@ -25,7 +25,7 @@ def main(domain: str):
     
     dest_ip = socket.gethostbyname(domain)
     dest_port = 80
-    conn = handshake(dest_ip, dest_port, local_ip, domain, "/")
+    conn = handshake(dest_ip, dest_port, local_ip, domain, "/classes/cs5700f22/2MB.log")
 
     # algorithm
     data = download_S(conn)
