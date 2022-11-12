@@ -21,8 +21,7 @@ Alan Garcia
 def main(domain: str):
     # set up
     local_ip = create_sockets.getLocalIp()
-    domain = "david.choffnes.com/classes/cs5700f22/2MB.log"
-    
+    domain = "www.david.choffnes.com"
     dest_ip = socket.gethostbyname(domain)
     dest_port = 80
     conn = handshake(dest_ip, dest_port, local_ip, domain, "/classes/cs5700f22/2MB.log")
