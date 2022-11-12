@@ -51,7 +51,7 @@ def main(domain: str):
     
     #dataString = joinAndWrite(data)
     if len(data) > 0:
-        joinAndWrite(data)
+        joinAndWrite(data, filename)
     
     return data
 
@@ -64,9 +64,9 @@ def getRandomData():
 """
 This joins and write the data to a file
 """
-def joinAndWrite(data:bytes) -> str:
+def joinAndWrite(data:bytes, filename:str) -> str:
 
-    f = open("index.html", "xb")
+    f = open(filename, "wb")
     for char in data:
         f.write(char)
     f.close()
