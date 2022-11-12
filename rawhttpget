@@ -25,7 +25,7 @@ def main(domain: str):
     local_ip = create_sockets.getLocalIp()
     if "http:/" not in domain:
         domain = "http://" + domain
-    print(domain)
+    
     host = urlparse(domain)
     path = host.path
     filename = path.split("/")[-1]
