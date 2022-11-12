@@ -22,15 +22,16 @@ def main(domain: str):
     # set up
     local_ip = create_sockets.getLocalIp()
     domain = "www.david.choffnes.com"
+    
     dest_ip = socket.gethostbyname(domain)
     dest_port = 80
-    
     conn = handshake(dest_ip, dest_port, local_ip, domain, "/")
 
     # algorithm
     data = download_S(conn)
-    #dataString = joinAndWrite(data)
     
+    #dataString = joinAndWrite(data)
+    print(len(data))
     return data
 
 """
