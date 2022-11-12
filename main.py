@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import time
 from ConnectionData import ConnectionData
 import create_sockets
