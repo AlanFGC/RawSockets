@@ -210,7 +210,7 @@ def closeTCP(conn):
 This function takes care of the main download part of the code.
 It uses a single thread
 """
-def download_S(conn) -> dict:
+def download_S(conn: ConnectionData) -> dict:
     download = [] #sequence Number: RAW DATA
     workList = queue.Queue()
     
@@ -234,8 +234,8 @@ def download_S(conn) -> dict:
             # check the fin bit is set
             
             #0000 0001 << 7 = 1000 0000 if that is > 0
-            if len(rec) > 20 and packet[20+13] << 7 > 1:
-                print("FIN DETECTEd: ", bin(packet[20+13]))
+            if len(rec) > 20 and rec[20+13] << 7 > 1:
+                print("FIN DETECTEd: ", bin(rec[20+13]))
                 closeTCP(conn)
                 return
     
@@ -257,6 +257,7 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list):
     # craft the reply
     newSeqnc = (seqNumber + len(raw_data))
     newSeqnc = newSeqnc % MAX_SQNC
+    conn.seq_numb += 1
     reply = pack_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, newSeqnc, windowSize, conn.local_ip, conn.dest_ip, ack=True)
     reply = pack_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
     
@@ -268,9 +269,8 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list):
     # append the download
     download.append(raw_data)
     
-    # if FINN is detected we say bye
-    if len(packet) > 20 and ((packet[13] << 7) > 1):
-            print("Worker Thread, FIN Detected")
+    
+            
     return download
 
 if __name__ == "__main__":
