@@ -47,7 +47,7 @@ This joins and write the data to a file
 """
 def joinAndWrite(data:bytes) -> str:
 
-    f = open("index.html", "x")
+    f = open("index.html", "xb")
     f.write(data)
     f.close()
 
