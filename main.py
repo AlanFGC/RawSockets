@@ -159,7 +159,6 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
         raise ValueError("Sockets didn't initialize successfully")
     
     # send the first SYN
-    
     packet = pack_handler.make_tcp_header_2( b'' , rec_port, ext_dest_port, initSqnc, 0, 1, local_ip, dest_ip, syn=True)
     packet = pack_handler.make_ip_header(packet, local_ip, dest_ip)
     sock_send.sendto(packet, (dest_ip, ext_dest_port))
@@ -230,7 +229,7 @@ def download_S(conn: ConnectionData) -> dict:
             # check the fin bit is set
             
             #0000 0001 << 7 = 1000 0000 if that is > 0
-            if checkFinBit(rec[34]):
+            if checkFinBit(rec[33]):
                 closeTCP(conn)
                 return download
     
@@ -269,7 +268,6 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list):
 
 def checkFinBit(currByte: bytes):
     #int.from_bytes(currByte, "big")
-    
     res = True if ( currByte & 0b0001) > 0 else False
     print(currByte, res)
     return res
@@ -277,3 +275,7 @@ def checkFinBit(currByte: bytes):
 
 if __name__ == "__main__":
     main("hello")
+    
+    
+    
+    
