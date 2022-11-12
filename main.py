@@ -224,8 +224,9 @@ def download_S(conn: ConnectionData) -> dict:
         print("LISTENING FOR INCOMING PACKETS" + str(workList.qsize()))
         src = rec[12:16]
         thisSourceIP = pack_handler.bytes_to_address(src)
-        #TODO check the port also
-        if thisSourceIP == conn.dest_ip:
+        incomingPort = int(struct.unpack('>H', rec[20+2:20+4])[0])
+        print("Incoming Port:", incomingPort)
+        if thisSourceIP == conn.dest_ip and conn.rec_port == incomingPort:
             respondPacket(conn, rec, download)
             # check the fin bit is set
             
