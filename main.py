@@ -22,7 +22,7 @@ Alan Garcia
 def main(domain: str):
     # set up
     local_ip = create_sockets.getLocalIp()
-    domain = "http://www.david.choffnes.com/classes/cs5700f22/50MB"
+    domain = "http://www.david.choffnes.com/classes/cs5700f22/50MB.log"
     
     host = urlparse(domain)
     path = host.path
@@ -33,7 +33,6 @@ def main(domain: str):
         filename = "index.html"
     
     path = path if path else "/"
-    
     
     dest_ip = socket.gethostbyname(host.hostname)
     dest_port = 80
