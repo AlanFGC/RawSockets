@@ -48,7 +48,8 @@ This joins and write the data to a file
 def joinAndWrite(data:bytes) -> str:
 
     f = open("index.html", "xb")
-    f.write(data)
+    for char in data:
+        f.write(char)
     f.close()
 
 """
