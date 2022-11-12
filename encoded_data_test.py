@@ -1,5 +1,4 @@
 import random
-import htt
 
 """
 This is a test that reads a file and splits it into a html file.
@@ -31,8 +30,6 @@ def testJoiningData(fileName="linkedin.html"):
     data = openHtml(fileName)
     array = makeArray(data)
     random.shuffle(array)
-    htt.joinData(array)
-    
     return
 
 """
