@@ -225,13 +225,13 @@ def download_S(conn: ConnectionData) -> dict:
         src = rec[12:16]
         thisSourceIP = pack_handler.bytes_to_address(src)
         incomingPort = int(struct.unpack('>H', rec[20+2:20+4])[0])
-        print("Incoming Port:", incomingPort)
+        
         if thisSourceIP == conn.dest_ip and conn.rec_port == incomingPort:
             respondPacket(conn, rec, download)
             # check the fin bit is set
             
             #0000 0001 << 7 = 1000 0000 if that is > 0
-            if len(rec) > 20 and rec[20+13] << 7 > 1:
+            if len(rec) > 20 and bin(rec[20+13]) << 7 > 1:
                 print("FIN DETECTEd: ", bin(rec[20+13]))
                 closeTCP(conn)
                 return
@@ -245,7 +245,7 @@ It also manages the window szize
 """
 def respondPacket(conn: ConnectionData, packet: bytes, download: list):
     
-    windowSize = 2500
+    windowSize = 5800
     print("packetWorkerThread")
         # pase the packet
     tcp_packet = pack_handler.parse_IP_packet(packet)
