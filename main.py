@@ -231,10 +231,9 @@ def download_S(conn: ConnectionData) -> dict:
             # check the fin bit is set
             
             #0000 0001 << 7 = 1000 0000 if that is > 0
-            if len(rec) > 20 and bin(rec[20+13]) << 7 > 1:
-                print("FIN DETECTEd: ", bin(rec[20+13]))
+            if checkFinBit(rec[20+13]):
                 closeTCP(conn)
-                return
+                return download
     
     
     return download
@@ -270,9 +269,19 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list):
             
     return download
 
-if __name__ == "__main__":
-    main("hello")
+
+def test():
+    data = pack_handler.convert_Bit_String_to_bytes("00001000")
+    print()
     
+def checkFinBit(currByte: bytes):
+    res = True if (int.from_bytes(currByte, "big") & 0b0001) > 0 else False
+    return res
+
+
+if __name__ == "__main__":
+    #main("hello")
+    test()
     
     
     
