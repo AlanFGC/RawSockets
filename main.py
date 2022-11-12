@@ -10,6 +10,7 @@ import threading
 import queue
 import struct
 from urllib.parse import urlparse
+import json
 
 
 MAX_SQNC = 4294967295
@@ -41,13 +42,15 @@ def main(domain: str):
     
     conn = handshake(dest_ip, dest_port, local_ip, host.hostname , path)
 
-    
+   
     # algorithm
     data = download_S(conn)
     
     
     
-    
+    content = json.JSONDecoder(data)
+    print(content)
+    return
     #dataString = joinAndWrite(data)
     if len(data) > 0:
         joinAndWrite(data, filename)
