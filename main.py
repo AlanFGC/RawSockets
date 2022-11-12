@@ -31,7 +31,9 @@ def main(domain: str):
     data = download_S(conn)
     
     #dataString = joinAndWrite(data)
-    print(len(data))
+    if len(data) > 0:
+        joinAndWrite(data)
+    
     return data
 
 """
@@ -43,13 +45,15 @@ def getRandomData():
 """
 This joins and write the data to a file
 """
-def joinAndWrite(downloads:dict) -> str:
-    downloads = list(downloads.items())
-    downloads.sort(key=lambda i:(i[0], i[1]))
-    file = []
-    for item in downloads:
-        file.append(item.decode())
-    return "".join(file)
+def joinAndWrite(data:bytes) -> str:
+
+    f = open("index.html", "w")
+    f.write(data)
+    f.close()
+
+#open and read the file after the appending:
+f = open("demofile2.txt", "r")
+print(f.read()) 
 
 """
 This function takes care of the main download part of the code.
