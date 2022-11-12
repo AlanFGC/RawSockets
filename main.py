@@ -47,13 +47,9 @@ This joins and write the data to a file
 """
 def joinAndWrite(data:bytes) -> str:
 
-    f = open("index.html", "w")
+    f = open("index.html", "x")
     f.write(data)
     f.close()
-
-#open and read the file after the appending:
-f = open("demofile2.txt", "r")
-print(f.read()) 
 
 """
 This function takes care of the main download part of the code.
