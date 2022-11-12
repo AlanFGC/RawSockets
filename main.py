@@ -23,7 +23,7 @@ Alan Garcia
 def main(domain: str):
     # set up
     local_ip = create_sockets.getLocalIp()
-    domain = "http://www.david.choffnes.com/classes/cs5700f22/50MB.log"
+    domain = "http://www.david.choffnes.com"
     
     host = urlparse(domain)
     path = host.path
@@ -47,8 +47,8 @@ def main(domain: str):
     data = download_S(conn)
     
     
-    
-    my_json = data.decode('utf8').replace("'", '"')
+    data = b"".join(data)
+    my_json = data.decode('ascii').replace("'", '"')
     print(my_json)
     return
     #dataString = joinAndWrite(data)
