@@ -276,8 +276,4 @@ def checkFinBit(currByte: bytes):
 
 
 if __name__ == "__main__":
-    #main("hello")
-    
-    
-    
-    
+    main("hello")
