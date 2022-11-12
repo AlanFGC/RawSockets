@@ -30,10 +30,6 @@ def main(domain: str):
     data = download_S(conn)
     #dataString = joinAndWrite(data)
     
-    
-    
-    closeTCP(conn)
-    
     return data
 
 """
@@ -198,12 +194,12 @@ def handshake(dest_ip, dest_port, local_ip, domain, subdomain):
 """
 Close tcp connections
 """
-def closeTCP(conn):
+def closeTCP(conn: ConnectionData):
     reply = pack_handler.make_tcp_header_2(b"", conn.rec_port,conn.dest_port, conn.seq_numb, conn.ack_numb, 1, conn.local_ip, conn.dest_ip, fin=True, ack=True)
     reply = pack_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
     conn.send_sock.sendto(reply, (conn.dest_ip, conn.dest_port))
-    conn.send_sock.close()
     conn.rec_sock.close()
+    conn.send_sock.close()
     
     
 """
