@@ -231,7 +231,7 @@ def download_S(conn: ConnectionData) -> dict:
             # check the fin bit is set
             
             #0000 0001 << 7 = 1000 0000 if that is > 0
-            if checkFinBit(bytes(rec[20+13])):
+            if checkFinBit(bytes(rec[33])):
                 closeTCP(conn)
                 return download
     
@@ -244,8 +244,7 @@ It also manages the window szize
 """
 def respondPacket(conn: ConnectionData, packet: bytes, download: list):
     
-    windowSize = 5800
-    print("packetWorkerThread")
+    windowSize = 5832
         # pase the packet
     tcp_packet = pack_handler.parse_IP_packet(packet)
     srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(tcp_packet)
@@ -258,10 +257,10 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list):
     reply = pack_handler.make_ip_header(reply, conn.local_ip,conn.dest_ip)
     
     
-    print("Sending Replies!")
+    
     # send the acknowledgment
     conn.send_sock.sendto(reply, (conn.dest_ip, conn.dest_port))
-    
+    print("Reply Sent")
     # append the download
     download.append(raw_data)
     
@@ -275,8 +274,8 @@ def checkFinBit(currByte: bytes):
 
 
 if __name__ == "__main__":
-    main("hello")
-    checkFinBit(pack_handler.convert_Bit_String_to_bytes("000000001"))
+    #main("hello")
+    print(checkFinBit(pack_handler.convert_Bit_String_to_bytes("001000001")))
     
     
     
