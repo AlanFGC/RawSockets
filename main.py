@@ -48,8 +48,8 @@ def main(domain: str):
     
     
     
-    content = json.JSONDecoder(data)
-    print(content)
+    my_json = data.decode('utf8').replace("'", '"')
+    print(my_json)
     return
     #dataString = joinAndWrite(data)
     if len(data) > 0:
