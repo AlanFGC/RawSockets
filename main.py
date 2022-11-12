@@ -21,7 +21,7 @@ Alan Garcia
 def main(domain: str):
     # set up
     local_ip = create_sockets.getLocalIp()
-    domain = "www.david.choffnes.com"
+    domain = "david.choffnes.com/classes/cs5700f22/2MB.log"
     
     dest_ip = socket.gethostbyname(domain)
     dest_port = 80
