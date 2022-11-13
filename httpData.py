@@ -4,16 +4,10 @@ def stripHeader(header):
     header = header[1:]
     return b"".join(header)
 
-def getChunks(data:list):
-    chunks = []
-    
-    for chunk in data:
-        chunk = chunk.split(b"\r\n")
-        if chunk:
-            chunk = chunk[1:]
-        chunks.append(b"".join(chunk))
-    
-    return chunks
+def getChunks(data:bytes):
+    if data:
+        data = data[2:-1]
+    return data
 
 if __name__ == "__main__":
     f = open("index.html", "r")
