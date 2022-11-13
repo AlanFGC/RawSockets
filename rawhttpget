@@ -47,7 +47,7 @@ def main(domain: str):
     # algorithm
     data = download_S(conn)
 
-    writeToFile(data, filename)
+    writeToFile(, filename)
     return data
 
 
@@ -56,8 +56,9 @@ Function that strips http header
 """
 def stripHeader(download:list):
     for i in range(len(download)):
-        if str(download[i]) == "\r" and str(download[i+1]) == "\n" and str(download[i+2]) == "\r" and str(download[i+3]) == "\n":
-            return download[i+4:]
+        if str(download[i]) == "\r\n" and str(download[i+1]) == "\r\n":
+            j = i + 1
+            return download[j:]
     raise ValueError("THIS IS NOT WORKING")
              
 
