@@ -52,14 +52,19 @@ def main(domain: str):
     data[0] = httpParser.stripHeader(header)
     
     if b"chunked" in header:
-        for i in range(len(data)):
-            data[i] = data[i].decode("ascii")
-        data = httpParser.getChunkedData(data)
-    
+        writeToFile(data, filename)
+        formatted = reopenfile(filename)
+        data = httpParser.getChunkedData(formatted)
     
     writeToFile(data, filename)
     return data
              
+def reopenfile(filename):
+    f = open("index.html", "r")
+    string = f.read()
+    res = httpParser.getChunkedData(string)
+    return res
+
 
 """
 Randome data creation
@@ -73,7 +78,6 @@ This joins and write the data to a file
 def writeToFile(data:bytes, filename:str) -> str:
     f = open(filename, "wb")
     for char in data:
-        f.write(b"\n=====================NEW CHUNK===============================\n")
         f.write(char)
     f.close()
  

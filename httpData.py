@@ -1,5 +1,5 @@
 import html
-import regex as re
+import re
 
 """
 Strip the header from http response
@@ -14,9 +14,8 @@ def stripHeader(header:bytes):
 """
 Strip metadata from chunked transfer encoding packets
 """
-def getChunkedData(data:str):
+def getChunkedData(data):
     data = "".join(data)
-    
     list = re.findall("\n[0-9abcdf]+\n", data)
     for item in list:
         data = data.replace(item, "")
@@ -24,11 +23,4 @@ def getChunkedData(data:str):
 
 
 if __name__ == "__main__":
-    f = open("index.html", "r")
-    myBytes = f.read()
-    
-    myBytes = getChunkedData(myBytes)
-    
-    print(myBytes)
-    
-   
+    pass
