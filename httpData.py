@@ -13,7 +13,7 @@ def stripHeader(header):
 Strip metadata from chunked transfer encoding packets
 """
 def getChunks(data:bytes):
-    numbBytes = int(struct.unpack('>I', data[0:4]))
+    numbBytes = int(struct.unpack('>I', data[0:4][0]))
     print("NUMBER OF BYTES IN CHUNK: ", numbBytes)
     if data:
         numbBytes += 5

@@ -162,7 +162,6 @@ def download_S(conn: ConnectionData) -> list:
     packet = httpGet.craftRequest(conn.domain, conn.subdomain)
     packet = pack_handler.make_tcp_header_2( packet , conn.rec_port, conn.dest_port, conn.seq_numb, conn.ack_numb, 10, conn.local_ip, conn.dest_ip, push=True, ack=True)
     packet = pack_handler.make_ip_header(packet, conn.local_ip, conn.dest_ip)
-    print(conn.dest_ip, conn.dest_port)
     conn.send_sock.sendto(packet, (conn.dest_ip, conn.dest_port))
     packets = set()
     # This is my listener
@@ -203,7 +202,6 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list):
     
     # send the acknowledgment
     conn.send_sock.sendto(reply, (conn.dest_ip, conn.dest_port))
-    print("Reply Sent")
     # append the download
     if len(raw_data) > 0:
         download.append(raw_data)
@@ -213,7 +211,6 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list):
 def checkFinBit(currByte: bytes):
     #int.from_bytes(currByte, "big")
     res = True if ( currByte & 0b0001) > 0 else False
-    print(currByte, res)
     return res
 
 
