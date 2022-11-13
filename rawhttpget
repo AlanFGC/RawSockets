@@ -19,7 +19,7 @@ Alan Garcia
 
 def main(domain: str):
     
-    domain = "https://david.choffnes.com/classes/cs5700f22/2MB.log"
+    domain = "https://david.choffnes.com" #/classes/cs5700f22/2MB.log"
     
     # set up
     local_ip = create_sockets.getLocalIp()
@@ -192,7 +192,7 @@ def respondPacket(conn: ConnectionData, packet: bytes, download: list, packets:s
     srcPort, destPort, seqNumber, ackNumber, raw_data, window = pack_handler.parse_TCP_packet(tcp_packet)
     if seqNumber in packets:
         return
-    packets.add(seqNumber) # probability of two dif packets having same number is 0.000000008 for these size of download
+    packets.add(seqNumber) # probability of two dif packets having same number is 0.000000008 for this size of download
     # craft the reply
     newSeqnc = (seqNumber + len(raw_data))
     newSeqnc = newSeqnc % MAX_SQNC
