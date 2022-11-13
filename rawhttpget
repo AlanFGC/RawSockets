@@ -46,7 +46,7 @@ def main(domain: str):
    
     # algorithm
     data = download_S(conn)
-    data = stripHeader(data)
+    #
     writeToFile(data, filename)
     return data
 
