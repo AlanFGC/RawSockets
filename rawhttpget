@@ -58,6 +58,7 @@ def stripHeader(download:list):
     for i in range(len(download)):
         if str(download[i]) == "\r" and str(download[i+1]) == "\n" and str(download[i+2]) == "\r" and str(download[i+3]) == "\n":
             return download[i+4:]
+    raise ValueError("THIS IS NOT WORKING")
              
 
 """
