@@ -75,7 +75,7 @@ def getRandomData():
 """
 This joins and write the data to a file
 """
-def writeToFile(data:bytes, filename:str) -> str:
+def writeToFile(data, filename:str) -> str:
     f = open(filename, "wb")
     for char in data:
         f.write(char)
