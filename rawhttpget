@@ -55,6 +55,7 @@ def main(domain: str):
 Function that strips http header
 """
 def stripHeader(download:list):
+    download = b"".join(download)
     for i in range(len(download)):
         if str(download[i]) == "\r\n" and str(download[i+1]) == "\r\n":
             j = i + 1
