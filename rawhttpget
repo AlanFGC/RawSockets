@@ -46,15 +46,19 @@ def main(domain: str):
    
     # algorithm
     data = download_S(conn)
-    
-    #dataString = joinAndWrite(data)
-    if len(data) > 0:
-        joinAndWrite(data, filename)
-    print("LeN OF DATA LIST:", len(data))
-    print(data[0])
-    print("=========================================================================================")
-    print(data[1])
+    data = b"".join(data)
+    writeToFile(stripHeader(data), filename)
     return data
+
+
+"""
+Function that strips http header
+"""
+def stripHeader(download:list):
+    for i in range(len(download)):
+        if download[i].decode() == "\r" and download[i+1].decode() == "\n" and download[i+2].decode() == "\r" and download[i+3].decode() == "\n":
+            return download[i+4:]
+             
 
 """
 Randome data creation
@@ -65,7 +69,7 @@ def getRandomData():
 """
 This joins and write the data to a file
 """
-def joinAndWrite(data:bytes, filename:str) -> str:
+def writeToFile(data:bytes, filename:str) -> str:
     f = open(filename, "wb")
     for char in data:
         f.write(char)
