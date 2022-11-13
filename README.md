@@ -17,3 +17,8 @@ Developed by Alan Garcia
 Evan Hanes helped during the intial developing stages
 
 
+### Note to the grader:
+chunked files are not going to be exactly the same, even when I've removed all chunk metadata. If you hash it and compare
+chunk transefered file they won't be exactly the same but have been parsed caorrectly.
+Other files are exactly the same, try running diff
+

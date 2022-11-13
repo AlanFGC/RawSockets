@@ -20,8 +20,6 @@ Alan Garcia
 
 def main(domain: str):
     
-    domain = "https://david.choffnes.com" #/classes/cs5700f22/2MB.log"
-    
     # set up
     local_ip = create_sockets.getLocalIp()
     if "http" not in domain:
