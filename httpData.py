@@ -1,9 +1,8 @@
 
-def stripHeader(header:str)-> str:
-    header = header.split("\r\n\r\n")
-    print(header[0])
+def stripHeader(header):
+    header = header.split(b"\r\n\r\n")
     header = header[1:]
-    return "".join(header)
+    return b"".join(header)
 
 def getChunks(data:list):
     pData = []

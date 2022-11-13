@@ -48,8 +48,8 @@ def main(domain: str):
     # algorithm
     data = download_S(conn)
     
-    header = data[0].decode()
-    data[0] = httpParser.stripHeader(header).encode()
+    header = data[0]
+    data[0] = httpParser.stripHeader(header)
     
     if "chunked" in header:
         #finalData = httpParser.getChunks(data)
