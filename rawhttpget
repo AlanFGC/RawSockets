@@ -50,15 +50,15 @@ def main(domain: str):
     
     header = data[0].decode()
     
-    
+    header = httpParser.stripHeader(header)
+    data[0] = header.encode()
     
     if "chunked" in header:
-        finalData = httpParser.getChunks(data)
-        raise ValueError("")
+        #finalData = httpParser.getChunks(data)
+        pass
     
     
-    
-    writeToFile(finalData, filename)
+    writeToFile(data, filename)
     return data
              
 

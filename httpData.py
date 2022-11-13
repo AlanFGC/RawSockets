@@ -1,11 +1,22 @@
 
-def stripHeader(header):
-    header = header.split("\r\n")
-    
-    return header[1:]
+def stripHeader(header:str)-> str:
+    header = header.split("\n\n")
+    header = header[1:]
+    return "".join(header)
 
 def getChunks(data:list):
     pData = []
     for chunk in data:
         pData.append(chunk[2:-1])
     return pData
+
+
+if __name__ == "__main__":
+    f = open("index.html", "r")
+    string = f.read()
+    
+    myString = stripHeader(string)
+    
+    print(myString)
+    
+   
