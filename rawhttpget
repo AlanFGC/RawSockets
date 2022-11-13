@@ -46,8 +46,8 @@ def main(domain: str):
    
     # algorithm
     data = download_S(conn)
-    data = b"".join(data)
-    writeToFile(stripHeader(data), filename)
+
+    writeToFile(data, filename)
     return data
 
 
@@ -154,7 +154,7 @@ def closeTCP(conn: ConnectionData):
 This function takes care of the main download part of the code.
 It uses a single thread
 """
-def download_S(conn: ConnectionData) -> dict:
+def download_S(conn: ConnectionData) -> list:
     download = [] #sequence Number: RAW DATA
     
     
