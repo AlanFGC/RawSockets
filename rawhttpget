@@ -72,6 +72,7 @@ This joins and write the data to a file
 def writeToFile(data:bytes, filename:str) -> str:
     f = open(filename, "wb")
     for char in data:
+        f.wirte("\n=====================NEW CHUNK===============================\n")
         f.write(char)
     f.close()
  
