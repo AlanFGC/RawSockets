@@ -70,15 +70,20 @@ def calculate_checksum_tcp(init_packet):
 
     return ~total
   
-  
-#TODO erase
-def chksum(packet):
+
+def tcp_checksum_2(packet):
   if len(packet) % 2 != 0:
-      packet += b'\0'    
-  res = sum(array.array("H", packet))
-  res = (res >> 16) + (res & 0xffff)
-  res += res >> 16    
-  return (~res) & 0xffff
+      packet += b'\0'
+  # note that these techniques were used by observing scapy and other codebases
+  # they were used here:
+  # https://www.bitforestinfo.com/blog/01/14/python-codes-to-calculate-tcp-checksum.html
+  # https://medium.com/@NickKaramoff/tcp-packets-from-scratch-in-python-3a63f0cd59fe
+  res = sum(array.array("H", packet)) # this is the actual summation of all the elements
+  res = (res >> 16) # bitshift 16
+  res += (res & 0xffff) # and operation address overflow
+  res += res >> 16   # perform it again
+  return (~res) & 0xffff # and operation again
+
 
  
 

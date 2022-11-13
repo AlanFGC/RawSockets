@@ -54,8 +54,8 @@ def main(domain: str):
     if b"chunked" in header:
         writeToFile(data, filename)
         formatted = reopenfile(filename)
-        data = httpParser.getChunkedData(formatted)
-        writeString(data, filename)
+        data = httpParser.getChunkedData("\n" + formatted)
+        writeString(data[:-1].encode(), filename)
         return data
     
     writeToFile(data, filename)

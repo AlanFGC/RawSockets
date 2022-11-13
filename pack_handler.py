@@ -132,7 +132,7 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     a7 = struct.pack('!H', 0)
     packet = b''.join([a1,a2,a3,a4,a5,a6,a7])
     ip_header = struct.pack('!4s4sHH',socket.inet_aton(src_ip),socket.inet_aton(dest_ip),int("00000110",2), len(packet) + len(data))
-    checksum = tcp_checksum.chksum(ip_header + packet + data)
+    checksum = tcp_checksum.tcp_checksum_2(ip_header + packet + data)
 
     # checksum is not big endian
     packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
