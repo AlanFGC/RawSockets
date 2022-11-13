@@ -18,6 +18,9 @@ Alan Garcia
 """
 
 def main(domain: str):
+    
+    domain = "https://david.choffnes.com/classes/cs5700f22/2MB.log"
+    
     # set up
     local_ip = create_sockets.getLocalIp()
     if "http:/" not in domain:
@@ -47,7 +50,10 @@ def main(domain: str):
     #dataString = joinAndWrite(data)
     if len(data) > 0:
         joinAndWrite(data, filename)
-    
+    print("LeN OF DATA LIST:", len(data))
+    print(data[0])
+    print("=========================================================================================")
+    print(data[1])
     return data
 
 """
@@ -212,7 +218,6 @@ def checkFinBit(currByte: bytes):
 
 
 if __name__ == "__main__":
-    #domain = "http://www.david.choffnes.com"
     main(sys.argv[1])
     
     
