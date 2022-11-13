@@ -1,6 +1,6 @@
 
 def stripHeader(header:str)-> str:
-    header = header.split("\n\n")
+    header = header.split("\r\n\r\n")
     print(header[0])
     header = header[1:]
     return "".join(header)
