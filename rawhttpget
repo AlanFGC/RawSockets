@@ -51,8 +51,8 @@ def main(domain: str):
     header = data[0]
     data[0] = httpParser.stripHeader(header)
     
-    if "chunked" in header:
-        #finalData = httpParser.getChunks(data)
+    if b"chunked" in header:
+        data = httpParser.getChunks(data)
         pass
     
     
