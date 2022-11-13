@@ -221,9 +221,6 @@ def parse_TCP_packet(data: bytes):
     seqNumber = int(struct.unpack('>I', data[4:8])[0])
     ackNumber = int(struct.unpack('>I', data[8:12])[0])
     window = int(struct.unpack('>H', data[14:16])[0])
-    print(f'PORTS: SRC:{srcPort} dest:{destPort}')
-    print(f'SqnceNumb: {seqNumber}')
-    print(f'ackNumber: {ackNumber}')
     raw_data = data[20:]
     return srcPort, destPort, seqNumber, ackNumber, raw_data, window
 

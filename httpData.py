@@ -1,3 +1,4 @@
+import struct
 """
 Strip the header from http response
 """
@@ -12,8 +13,11 @@ def stripHeader(header):
 Strip metadata from chunked transfer encoding packets
 """
 def getChunks(data:bytes):
+    numbBytes = int(struct.unpack('>I', data[0:4]))
+    print("NUMBER OF BYTES IN CHUNK: ", numbBytes)
     if data:
-        data = data[5:-1]
+        numbBytes += 5
+        data = data[5:numbBytes]
     return data
 
 if __name__ == "__main__":

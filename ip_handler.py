@@ -108,7 +108,6 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
     header = byteArr[:10] + byte_checkSum + byteArr[12:]
     
     if len(header) != 20 + len(data):
-        print("IP HEADER LEN:" , len(header))
         raise ValueError("Ip header incorrect Size")
     
     return header
@@ -131,7 +130,6 @@ def make_tcp_header_2(data:bytes, srcPort: int, destPort: int, seqNumb: int,
     a6 = struct.pack('!H', 0)
     a7 = struct.pack('!H', 0)
     packet = b''.join([a1,a2,a3,a4,a5,a6,a7])
-    print(f'LEN OF MY DATA: {len(data)}')
     ip_header = struct.pack('!4s4sHH',socket.inet_aton(src_ip),socket.inet_aton(dest_ip),int("00000110",2), len(packet) + len(data))
     checksum = tcp_checksum.chksum(ip_header + packet + data)
     
@@ -206,9 +204,6 @@ def parse_IP_packet(data: bytes):
     dest = data[16:20]
     src_ip = bytes_to_address(src)
     dest_ip = bytes_to_address(dest)
-    print(f'src: {src_ip}')
-    print(f'dest: {dest_ip}')
-    print(f'Total Length: {total_length}')
     # the rest of the packet    
     raw_data = data[20:]
     return raw_data
@@ -222,9 +217,6 @@ def parse_TCP_packet(data: bytes):
     seqNumber = int(struct.unpack('>I', data[4:8])[0])
     ackNumber = int(struct.unpack('>I', data[8:12])[0])
     window = int(struct.unpack('>H', data[14:16])[0])
-    print(f'PORTS: SRC:{srcPort} dest:{destPort}')
-    print(f'SqnceNumb: {seqNumber}')
-    print(f'ackNumber: {ackNumber}')
     raw_data = data[20:]
     return srcPort, destPort, seqNumber, ackNumber, raw_data, window
 
