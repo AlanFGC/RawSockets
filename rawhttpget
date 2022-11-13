@@ -52,8 +52,9 @@ def main(domain: str):
     data[0] = httpParser.stripHeader(header)
     
     if b"chunked" in header:
-       for i in range(len(data)):
-           data[i] = httpParser.getChunks(data[i])
+        for i in range(len(data)):
+            data[i] = data[i].decode("ascii")
+        data = httpParser.getChunkedData(data)
     
     
     writeToFile(data, filename)
