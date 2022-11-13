@@ -55,6 +55,8 @@ def main(domain: str):
         writeToFile(data, filename)
         formatted = reopenfile(filename)
         data = httpParser.getChunkedData(formatted)
+        writeString(data, filename)
+        return data
     
     writeToFile(data, filename)
     return data
@@ -73,12 +75,20 @@ def getRandomData():
     return random.randbytes(random.randint(1, 100))
 
 """
-This joins and write the data to a file
+ write the data to a file
 """
 def writeToFile(data, filename:str) -> str:
     f = open(filename, "wb")
     for char in data:
         f.write(char)
+    f.close()
+    
+"""
+Writes string character to file
+"""
+def writeString(string, filename:str) -> str:
+    f = open(filename, "wb")
+    f.write(string)
     f.close()
  
 """
