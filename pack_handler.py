@@ -110,7 +110,6 @@ def make_ip_header(data:bytes, src: str, dest: str) -> bytes:
     header = byteArr[:10] + byte_checkSum + byteArr[12:]
     
     if len(header) != 20 + len(data):
-        print("IP HEADER LEN:" , len(header))
         raise ValueError("Ip header incorrect Size")
     
     return header
@@ -205,9 +204,6 @@ def parse_IP_packet(data: bytes):
     dest = data[16:20]
     src_ip = bytes_to_address(src)
     dest_ip = bytes_to_address(dest)
-    print(f'src: {src_ip}')
-    print(f'dest: {dest_ip}')
-    print(f'Total Length: {total_length}')
     # the rest of the packet    
     raw_data = data[20:]
     return raw_data
