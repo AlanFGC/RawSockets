@@ -23,7 +23,7 @@ def main(domain: str):
     
     # set up
     local_ip = create_sockets.getLocalIp()
-    if "http:/" not in domain:
+    if "http" not in domain:
         domain = "http://" + domain
     
     host = urlparse(domain)
